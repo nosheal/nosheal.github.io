@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Long Island Manufacturing Ecosystem | Newlab x GES</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  /* ============================================
+     NEWLAB 2026 DESIGN SYSTEM
+     ============================================ */
+  :root {
+    --off-white: #F5F1EB;
+    --black: #000000;
+    --klein-blue: #1F18C0;
+    --opaline: #E0E4E1;
+    --mars: #7D2019;
+    --dune: #D6D1BE;
+    --highlighter: #DAE326;
+    --abyssline: #182339;
+    --teal-green: #00A676;
+    --green: #4CAF50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--off-white);
+    color: var(--black);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ============================================
+     STICKY NAVIGATION HEADER (Enhancement 1)
+     ============================================ */
+  .sticky-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(245, 241, 235, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 36px;
+    height: 48px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .sticky-nav.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .sticky-nav .nav-brand {
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--black);
+    flex-shrink: 0;
+  }
+
+  .sticky-nav .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .sticky-nav .nav-link {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    opacity: 0.5;
+    text-decoration: none;
+    padding: 12px 12px;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .sticky-nav .nav-link:hover {
+    opacity: 0.85;
+  }
+
+  .sticky-nav .nav-link.active {
+    opacity: 1;
+  }
+
+  .sticky-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--klein-blue);
+  }
+
+  /* ============================================
+     HERO SECTION
+     ============================================ */
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #hero-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 60px 48px 48px;
+    background: linear-gradient(
+      to top,
+      rgba(245, 241, 235, 0.97) 0%,
+      rgba(245, 241, 235, 0.85) 40%,
+      rgba(245, 241, 235, 0.4) 70%,
+      transparent 100%
+    );
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .hero-overlay .brand {
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+
+  .hero-overlay .title {
+    font-weight: 900;
+    font-size: clamp(32px, 5.5vw, 72px);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--black);
+    line-height: 1.05;
+    max-width: 900px;
+  }
+
+  .hero-overlay .subtitle {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: clamp(11px, 1.3vw, 14px);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-top: 12px;
+    opacity: 0.7;
+  }
+
+  .hero-overlay .meta {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-top: 6px;
+    opacity: 0.45;
+  }
+
+  /* Scroll indicator */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.5;
+    animation: scrollPulse 2.5s ease-in-out infinite;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .scroll-indicator span {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  .scroll-indicator .arrow {
+    width: 20px;
+    height: 20px;
+    border-right: 2px solid var(--black);
+    border-bottom: 2px solid var(--black);
+    transform: rotate(45deg);
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 0.7; transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ============================================
+     LAYER CONTROLS
+     ============================================ */
+  .layer-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 20;
+    background: rgba(245, 241, 235, 0.93);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    min-width: 220px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+
+  .layer-controls h3 {
+    font-weight: 900;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    color: var(--black);
+  }
+
+  .layer-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .layer-controls label:hover {
+    opacity: 0.8;
+  }
+
+  .layer-controls input[type="checkbox"] {
+    display: none;
+  }
+
+  .layer-controls .check-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 2px solid #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .layer-controls input:checked + .check-box {
+    border-color: transparent;
+  }
+
+  .layer-controls input:checked + .check-box::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    background: white;
+  }
+
+  .layer-controls .type-count {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    opacity: 0.5;
+    margin-left: auto;
+  }
+
+  /* ============================================
+     SPLIT LAYOUT (NARRATIVE + MAP)
+     ============================================ */
+  .split-section {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .narrative-panel {
+    width: 42%;
+    background: var(--off-white);
+    overflow-y: auto;
+    padding: 64px 48px 120px;
+    z-index: 5;
+    transition: width 0.6s ease;
+  }
+
+  .narrative-panel.full-width {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .narrative-panel.full-width p,
+  .narrative-panel.full-width .callout {
+    max-width: 740px;
+  }
+
+  .map-panel {
+    width: 58%;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transition: opacity 0.6s ease, width 0.6s ease;
+  }
+
+  .map-panel.map-hidden {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #main-map {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Map controls for the sticky map */
+  .map-panel .layer-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  /* ============================================
+     NARRATIVE TYPOGRAPHY
+     ============================================ */
+  .narrative-panel h2 {
+    font-weight: 900;
+    font-size: clamp(20px, 2.5vw, 28px);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 24px;
+    line-height: 1.15;
+    color: var(--black);
+  }
+
+  .narrative-panel h3 {
+    font-weight: 900;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 40px;
+    margin-bottom: 14px;
+    color: var(--klein-blue);
+  }
+
+  .narrative-panel p {
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    color: #1a1a1a;
+    max-width: 560px;
+  }
+
+  .narrative-panel .lead {
+    font-size: 17px;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .narrative-panel .callout {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 32px 0;
+    padding-left: 20px;
+    border-left: 4px solid var(--klein-blue);
+    max-width: 560px;
+  }
+
+  .section-divider {
+    width: 48px;
+    height: 3px;
+    background: var(--klein-blue);
+    margin: 56px 0 32px;
+  }
+
+  .section-label {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--klein-blue);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* ============================================
+     ENTITY LINKS (Enhancement 3)
+     ============================================ */
+  .entity-link {
+    color: var(--klein-blue);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--klein-blue);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .entity-link:hover {
+    opacity: 0.7;
+  }
+
+  /* ============================================
+     ECOSYSTEM LAYER DIAGRAM
+     ============================================ */
+  .ecosystem-diagram {
+    background: white;
+    border-radius: 12px;
+    padding: 28px 24px;
+    margin: 24px 0 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .eco-layer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .eco-layer:hover {
+    background: rgba(31, 24, 192, 0.04);
+  }
+
+  .eco-layer.eco-active {
+    background: rgba(31, 24, 192, 0.08);
+  }
+
+  .eco-layer:last-child {
+    border-bottom: none;
+  }
+
+  .eco-layer .layer-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .eco-layer .layer-name {
+    font-weight: 900;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    min-width: 120px;
+  }
+
+  .eco-layer .layer-actors {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .eco-connector {
+    width: 2px;
+    height: 12px;
+    background: #ddd;
+    margin-left: 17px;
+  }
+
+  /* Pillar clear button */
+  .pillar-clear {
+    display: none;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mars);
+    background: rgba(125, 32, 25, 0.08);
+    border: 1px solid rgba(125, 32, 25, 0.2);
+    border-radius: 4px;
+    padding: 6px 14px;
+    cursor: pointer;
+    margin: 12px 0 0 8px;
+    transition: background 0.2s ease;
+  }
+
+  .pillar-clear:hover {
+    background: rgba(125, 32, 25, 0.15);
+  }
+
+  .pillar-clear.show {
+    display: inline-block;
+  }
+
+  /* Central pillar node overlay on map */
+  .pillar-node {
+    position: absolute;
+    z-index: 30;
+    background: rgba(245, 241, 235, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    pointer-events: none;
+    text-align: center;
+    max-width: 200px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .pillar-node.visible {
+    opacity: 1;
+  }
+
+  .pillar-node .pn-name {
+    font-weight: 900;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--klein-blue);
+    margin-bottom: 4px;
+  }
+
+  .pillar-node .pn-desc {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #555;
+  }
+
+  /* ============================================
+     DATA CARDS
+     ============================================ */
+  .data-card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin: 18px 0 28px;
+  }
+
+  .data-card {
+    background: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid var(--klein-blue);
+  }
+
+  .data-card .dc-name {
+    font-weight: 900;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .data-card .dc-holder {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--klein-blue);
+    margin-bottom: 8px;
+  }
+
+  .data-card .dc-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  .data-card .dc-access {
+    display: inline-block;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-top: 8px;
+  }
+
+  .dc-access.high { background: #e8f5e9; color: #2e7d32; }
+  .dc-access.medium { background: #fff8e1; color: #f57f17; }
+  .dc-access.low { background: #fce4ec; color: #c62828; }
+
+  /* ============================================
+     OUTREACH TABLE
+     ============================================ */
+  .outreach-tier {
+    margin: 24px 0 36px;
+  }
+
+  .outreach-tier .tier-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .outreach-tier .tier-badge {
+    font-weight: 900;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    color: white;
+  }
+
+  .outreach-tier .tier-title {
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .outreach-item {
+    background: white;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+
+  .outreach-item .oi-name {
+    font-weight: 900;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .outreach-item .oi-why {
+    font-size: 13px;
+    color: #444;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .outreach-item .oi-need {
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ============================================
+     MAPLIBRE POPUP OVERRIDES
+     ============================================ */
+  .maplibregl-popup-content {
+    background: var(--off-white) !important;
+    border-radius: 12px !important;
+    padding: 20px 22px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+    max-width: 320px !important;
+    font-family: system-ui, -apple-system, sans-serif !important;
+  }
+
+  .maplibregl-popup-close-button {
+    font-size: 20px !important;
+    color: var(--black) !important;
+    right: 8px !important;
+    top: 8px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+    border-top-color: var(--off-white) !important;
+  }
+
+  .popup-name {
+    font-weight: 900;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+    padding-right: 20px;
+  }
+
+  .popup-badge {
+    display: inline-block;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: white;
+    margin-bottom: 8px;
+  }
+
+  .popup-location {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .popup-desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #333;
+  }
+
+  /* ============================================
+     FOOTER
+     ============================================ */
+  .footer {
+    background: var(--abyssline);
+    color: var(--off-white);
+    padding: 56px 48px 40px;
+    text-align: center;
+  }
+
+  .footer .footer-brand {
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  .footer .footer-title {
+    font-weight: 900;
+    font-size: clamp(18px, 2.5vw, 28px);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 20px;
+  }
+
+  .footer .footer-meta {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-bottom: 6px;
+  }
+
+  .footer .footer-line {
+    width: 48px;
+    height: 2px;
+    background: var(--klein-blue);
+    margin: 24px auto 20px;
+  }
+
+  .footer .footer-bottom {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.35;
+  }
+
+  /* ============================================
+     STAT HIGHLIGHT
+     ============================================ */
+  .stat-row {
+    display: flex;
+    gap: 24px;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .stat-item .stat-num {
+    font-weight: 900;
+    font-size: 28px;
+    color: var(--klein-blue);
+    line-height: 1.1;
+  }
+
+  .stat-item .stat-label {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 900px) {
+    .split-section {
+      flex-direction: column;
+    }
+
+    .narrative-panel {
+      width: 100% !important;
+      padding: 40px 24px 60px;
+      order: 1;
+    }
+
+    .map-panel {
+      width: 100% !important;
+      height: 60vh;
+      position: relative;
+      order: 2;
+      opacity: 1 !important;
+    }
+
+    .hero-overlay {
+      padding: 40px 24px 32px;
+    }
+
+    .layer-controls {
+      max-width: 200px;
+      padding: 12px 14px;
+    }
+
+    .stat-row {
+      gap: 16px;
+    }
+
+    .sticky-nav .nav-links {
+      gap: 0;
+    }
+
+    .sticky-nav .nav-link {
+      padding: 12px 6px;
+      font-size: 8px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .map-panel {
+      height: 50vh;
+    }
+
+    .layer-controls {
+      top: 8px;
+      right: 8px;
+      max-width: 170px;
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+
+    .layer-controls h3 {
+      font-size: 9px;
+    }
+
+    .sticky-nav {
+      padding: 0 16px;
+    }
+
+    .sticky-nav .nav-link {
+      padding: 12px 4px;
+      font-size: 7.5px;
+      letter-spacing: 0.08em;
+    }
+  }
+
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Key structural observation callout */
+  .key-observation {
+    background: var(--abyssline);
+    color: var(--off-white);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin: 28px 0;
+  }
+
+  .key-observation .ko-label {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--highlighter);
+    margin-bottom: 8px;
+  }
+
+  .key-observation p {
+    color: var(--off-white);
+    font-size: 14px;
+    max-width: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     STICKY NAVIGATION HEADER (Enhancement 1)
+     ============================================ -->
+<nav class="sticky-nav" id="sticky-nav">
+  <div class="nav-brand">Newlab</div>
+  <div class="nav-links">
+    <a class="nav-link" data-nav="overview" onclick="scrollToSection('overview')">01 Overview</a>
+    <a class="nav-link" data-nav="ecosystem" onclick="scrollToSection('ecosystem')">02 Ecosystem</a>
+    <a class="nav-link" data-nav="academic" onclick="scrollToSection('academic')">03 Academic</a>
+    <a class="nav-link" data-nav="associations" onclick="scrollToSection('associations')">04 Associations</a>
+    <a class="nav-link" data-nav="data" onclick="scrollToSection('data')">05 Data &amp; Outreach</a>
+  </div>
+</nav>
+
+<!-- ============================================
+     HERO SECTION
+     ============================================ -->
+<section class="hero" id="hero-section">
+  <div id="hero-map"></div>
+
+  <div class="hero-overlay">
+    <div class="brand">Newlab</div>
+    <div class="title">Long Island Manufacturing Ecosystem</div>
+    <div class="subtitle">Stakeholder Mapping & Phase 2 Outreach Strategy</div>
+    <div class="meta">Granular Ecosystem Solutions | April 2026</div>
+  </div>
+
+  <div class="scroll-indicator" onclick="document.getElementById('content-start').scrollIntoView({behavior:'smooth'})">
+    <span>Scroll to explore</span>
+    <div class="arrow"></div>
+  </div>
+</section>
+
+<!-- ============================================
+     SPLIT LAYOUT: NARRATIVE + STICKY MAP
+     ============================================ -->
+<div id="content-start"></div>
+<section class="split-section" id="split-section">
+
+  <!-- NARRATIVE PANEL -->
+  <div class="narrative-panel" id="narrative">
+
+    <!-- SECTION 1: Executive Summary -->
+    <div class="narrative-section fade-in" data-section="overview" id="section-overview">
+      <span class="section-label">01 / Executive Summary</span>
+      <h2>Mapping the Institutional Landscape</h2>
+      <p class="lead">This memo maps the institutional landscape supporting Long Island's manufacturing ecosystem, identifies the datasets held by different actors, and recommends priority stakeholders for Phase 2 outreach.</p>
+
+      <p>The central finding is that Long Island has a <strong>structurally thinner institutional support infrastructure than every comparable peer region</strong> &mdash; no dedicated manufacturing innovation center, no state-level manufacturing fund, and an MEP center operating on roughly one-tenth the budget of Connecticut's CCAT.</p>
+
+      <div class="callout">The $30 million ACHIEVE award for a Regional Commercialization Corridor &mdash; to be operated by Newlab &mdash; represents a generational opportunity to close these gaps.</div>
+
+      <p>Engaging the right stakeholders now will shape both the data available for Phase 2 company-level research and the partnerships necessary for Phase 3 validation.</p>
+
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="stat-num">92</div>
+          <div class="stat-label">Stakeholders Mapped</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">~3,000</div>
+          <div class="stat-label">LI Manufacturers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">$30M</div>
+          <div class="stat-label">ACHIEVE Award</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Ecosystem Map -->
+    <div class="section-divider"></div>
+    <div class="narrative-section fade-in" data-section="ecosystem" id="section-ecosystem">
+      <span class="section-label">02 / The Ecosystem Architecture</span>
+      <h2>Five Functional Layers</h2>
+      <p>Long Island's manufacturing support infrastructure is organized across five functional layers. Unlike peer regions where these functions are often coordinated through a single anchor institution or state-level manufacturing office, Long Island's ecosystem is <strong>polycentric and loosely networked</strong> &mdash; multiple organizations serve overlapping constituencies without a clear hierarchy.</p>
+
+      <div class="ecosystem-diagram" id="ecosystem-diagram">
+        <div class="eco-layer" data-pillar="policy_capital" onclick="togglePillar('policy_capital')">
+          <div class="layer-icon" style="background:var(--abyssline); color:white;">$</div>
+          <div class="layer-name" style="color:var(--abyssline);">Policy & Capital</div>
+          <div class="layer-actors">LIREDC, ESD, <a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Suffolk County IDA')">Suffolk IDA</a>, Nassau IDA, Accelerate LI, Topspin Partners</div>
+        </div>
+        <div class="eco-connector"></div>
+        <div class="eco-layer" data-pillar="convening" onclick="togglePillar('convening')">
+          <div class="layer-icon" style="background:var(--opaline);">&#9733;</div>
+          <div class="layer-name" style="color:#555;">Convening</div>
+          <div class="layer-actors"><a class="entity-link" onclick="event.stopPropagation(); flyToEntity('HIA-LI')">HIA-LI</a>, LIA, <a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Ignite Long Island (Manufacturing Consortium of LI)')">Ignite LI</a>, <a class="entity-link" onclick="event.stopPropagation(); flyToEntity('ADDAPT')">ADDAPT</a>, LIBio</div>
+        </div>
+        <div class="eco-connector"></div>
+        <div class="eco-layer" data-pillar="knowledge" onclick="togglePillar('knowledge')">
+          <div class="layer-icon" style="background:var(--highlighter);">&#9878;</div>
+          <div class="layer-name" style="color:#555;">Knowledge & Translation</div>
+          <div class="layer-actors"><a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Stony Brook University')">Stony Brook</a> (LIMEP/SPIR/AERTC), <a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Brookhaven National Laboratory')">BNL</a>, <a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Farmingdale State College')">Farmingdale State</a>, CSHL, CPC</div>
+        </div>
+        <div class="eco-connector"></div>
+        <div class="eco-layer" data-pillar="workforce" onclick="togglePillar('workforce')">
+          <div class="layer-icon" style="background:var(--teal-green); color:white;">&#9881;</div>
+          <div class="layer-name" style="color:var(--teal-green);">Workforce</div>
+          <div class="layer-actors"><a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Suffolk County Community College (AMTC)')">SCCC</a> (AMTC), <a class="entity-link" onclick="event.stopPropagation(); flyToEntity('Institute for Workforce Advancement (IWA)')">IWA</a>, Eastern Suffolk BOCES, Nassau BOCES, WDI</div>
+        </div>
+        <div class="eco-connector"></div>
+        <div class="eco-layer" data-pillar="production" onclick="togglePillar('production')">
+          <div class="layer-icon" style="background:var(--mars); color:white;">&#9879;</div>
+          <div class="layer-name" style="color:var(--mars);">Production</div>
+          <div class="layer-actors">~3,000 manufacturers: A&D primes, pharma CMOs, precision machine shops, electronics assembly, food producers</div>
+        </div>
+        <button class="pillar-clear" id="pillar-clear-btn" onclick="clearPillarNetwork()">Clear Network View</button>
+      </div>
+
+      <div class="key-observation">
+        <div class="ko-label">Key Structural Observation</div>
+        <p>The layers are weakly connected vertically. <a class="entity-link" onclick="flyToEntity('HIA-LI')" style="color:var(--highlighter);">HIA-LI</a> and <a class="entity-link" onclick="flyToEntity('Ignite Long Island (Manufacturing Consortium of LI)')" style="color:var(--highlighter);">Ignite LI</a> convene firms but have limited connections to <a class="entity-link" onclick="flyToEntity('Brookhaven National Laboratory')" style="color:var(--highlighter);">BNL</a>'s research capabilities. LIMEP links <a class="entity-link" onclick="flyToEntity('Stony Brook University')" style="color:var(--highlighter);">Stony Brook</a> to manufacturers but has a $1.27M annual budget &mdash; insufficient for the scale of the ecosystem. The ACHIEVE award / Newlab center is positioned to bridge the convening and knowledge layers for the first time.</p>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Academic & Research -->
+    <div class="section-divider"></div>
+    <div class="narrative-section fade-in" data-section="academic" id="section-academic">
+      <span class="section-label">03 / Academic & Research Institutions</span>
+      <h2>Knowledge Anchors</h2>
+      <p>These institutions anchor the knowledge and technology dimensions of the ecosystem. Their missions range from fundamental research (<a class="entity-link" onclick="flyToEntity('Brookhaven National Laboratory')">BNL</a>) to applied commercialization (<a class="entity-link" onclick="flyToEntity('Stony Brook University')">Stony Brook</a>'s SPIR/AERTC) to workforce training (<a class="entity-link" onclick="flyToEntity('Suffolk County Community College (AMTC)')">SCCC</a>, <a class="entity-link" onclick="flyToEntity('Farmingdale State College')">Farmingdale</a>).</p>
+
+      <h3><a class="entity-link" onclick="flyToEntity('Stony Brook University')">Stony Brook University</a></h3>
+      <p>Institutional anchor with <strong>$4.65B annual regional economic impact</strong>. Hosts LIMEP (MEP center), AERTC (clean energy), CEBIP (cleantech incubator), CEWIT (wireless/IT), SPIR (industry partnerships &mdash; 3,100+ projects with 490+ firms), LIHTI (incubator, 55% of graduates still in business), SBDC, and the Calverton food incubator. The largest single-site employer on Long Island.</p>
+
+      <h3><a class="entity-link" onclick="flyToEntity('Brookhaven National Laboratory')">Brookhaven National Laboratory</a></h3>
+      <p>DOE national laboratory. NSLS-II synchrotron (29 beamlines) and Center for Functional Nanomaterials enabling materials characterization and manufacturing R&D. Technologist-in-Residence partnerships with Northrop Grumman and Henkel. Conceptual Discovery Park (~60 acres) for tech transfer.</p>
+
+      <h3><a class="entity-link" onclick="flyToEntity('Farmingdale State College')">Farmingdale State College</a></h3>
+      <p>ABET-accredited B.S. in Manufacturing Engineering Technology. Broad Hollow Bioscience Park (102,500 sq ft, hosts Estee Lauder R&D). Co-leads NY Offshore Wind Training Institute with <a class="entity-link" onclick="flyToEntity('Stony Brook University')">Stony Brook</a>.</p>
+
+      <h3>Composite Prototyping Center</h3>
+      <p>Only composite design, prototyping, and automated fiber placement facility in the northeastern United States. Located in Plainview.</p>
+    </div>
+
+    <!-- SECTION 4: Industry Associations -->
+    <div class="section-divider"></div>
+    <div class="narrative-section fade-in" data-section="associations" id="section-associations">
+      <span class="section-label">04 / Industry Associations</span>
+      <h2>Connective Tissue</h2>
+      <p>These organizations represent manufacturers collectively, facilitate networking, and coordinate supply chain relationships. They are the primary connective tissue of the ecosystem.</p>
+
+      <h3><a class="entity-link" onclick="flyToEntity('HIA-LI')">HIA-LI</a></h3>
+      <p>Steward of the Long Island Innovation Park at Hauppauge &mdash; <strong>1,400+ companies, 55,000+ employees, $13B annual output</strong>. Runs the region's largest B2B trade show (4,000+ attendees). The central convening node for the park ecosystem.</p>
+
+      <h3><a class="entity-link" onclick="flyToEntity('Ignite Long Island (Manufacturing Consortium of LI)')">Ignite Long Island</a></h3>
+      <p>501(c)(6) trade association representing all 12 manufacturing sectors in Nassau and Suffolk. Operates the <strong>Connex New York Marketplace</strong> (supply chain matching tool), the Industry/Education Portal, and the Connector Series events. NYS Apprenticeship Alliance Partner.</p>
+
+      <h3><a class="entity-link" onclick="flyToEntity('ADDAPT')">ADDAPT</a></h3>
+      <p>Aerospace Defense Diversification Alliance for Productivity and Training. Coordinates the A&D supply chain, advocates on Capitol Hill and at the Pentagon. Based at the Cradle of Aviation Museum.</p>
+
+      <h3>Long Island Association</h3>
+      <p>Largest regional business association. Manufacturing & Trade Committee examines manufacturing across biotech, pharma, aerospace, electronics, and food/agriculture. Workforce Development Roundtable (2025-2026, funded by JPMorgan Chase/NY Community Trust).</p>
+    </div>
+
+    <!-- SECTION 5: Data Landscape -->
+    <div class="section-divider"></div>
+    <div class="narrative-section fade-in" data-section="data" id="section-data">
+      <span class="section-label">05 / Data Landscape</span>
+      <h2>Datasets Held by Ecosystem Actors</h2>
+      <p>A central challenge for Phase 2 is that <strong>no single organization holds a comprehensive database of Long Island manufacturers and their capabilities</strong>. Data is distributed across actors with different collection methods, coverage, and access conditions.</p>
+
+      <div style="overflow-x:auto; margin: 24px 0;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px; line-height:1.4;">
+          <thead>
+            <tr style="border-bottom:3px solid var(--black);">
+              <th style="text-align:left; padding:10px 12px; font-family:monospace; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; font-weight:900;">Data Source</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Firm Names</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Addresses</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">NAICS</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Capabilities</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Certs</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Contracts</th>
+              <th style="text-align:center; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Access</th>
+              <th style="text-align:left; padding:10px 8px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;">Coverage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #ddd;">
+              <td style="padding:10px 12px;"><strong>LIMEP + SPIR</strong><br><span style="font-size:11px; color:#666;">Stony Brook (separate programs)</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--dune); padding:2px 6px; border-radius:3px;">PARTNER</span></td>
+              <td style="padding:8px; font-size:11px;">SPIR: 490+ firms with project records (MEP for ~3,000 LI mfrs)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #ddd;">
+              <td style="padding:10px 12px;"><strong>HIA-LI Park Data</strong><br><span style="font-size:11px; color:#666;">Park steward (not all are members)</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--dune); padding:2px 6px; border-radius:3px;">PARTNER</span></td>
+              <td style="padding:8px; font-size:11px;">1,400+ park tenants (Hauppauge-centric)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #ddd;">
+              <td style="padding:10px 12px;"><strong>Connex NY Marketplace</strong><br><span style="font-size:11px; color:#666;">Ignite Long Island</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--dune); padding:2px 6px; border-radius:3px;">PARTNER</span></td>
+              <td style="padding:8px; font-size:11px;">Established supply chain matching platform (statewide)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #ddd; background:rgba(31,24,192,0.04);">
+              <td style="padding:10px 12px;"><strong>USASpending / FPDS</strong><br><span style="font-size:11px; color:#666;">Federal Government</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--highlighter); padding:2px 6px; border-radius:3px; font-weight:700;">PUBLIC</span></td>
+              <td style="padding:8px; font-size:11px;">All federal contractors (~$2.8B/yr LI)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #ddd; background:rgba(31,24,192,0.04);">
+              <td style="padding:10px 12px;"><strong>SAM.gov</strong><br><span style="font-size:11px; color:#666;">Federal Government</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--highlighter); padding:2px 6px; border-radius:3px; font-weight:700;">PUBLIC</span></td>
+              <td style="padding:8px; font-size:11px;">All registered federal contractors</td>
+            </tr>
+            <tr style="border-bottom:1px solid #ddd;">
+              <td style="padding:10px 12px;"><strong>ThomasNet</strong><br><span style="font-size:11px; color:#666;">Commercial Platform</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px; color:var(--klein-blue);">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--opaline); padding:2px 6px; border-radius:3px;">COMMERCIAL</span></td>
+              <td style="padding:8px; font-size:11px;">National (LI coverage varies by firm opt-in)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #ddd;">
+              <td style="padding:10px 12px;"><strong>County IDAs</strong><br><span style="font-size:11px; color:#666;">Suffolk & Nassau IDAs</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--opaline); padding:2px 6px; border-radius:3px;">PUBLIC RECORDS</span></td>
+              <td style="padding:8px; font-size:11px;">Firms with PILOT/incentive agreements</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 12px;"><strong>ADDAPT Network</strong><br><span style="font-size:11px; color:#666;">A&D Industry Assoc.</span></td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9679;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px; font-size:16px;">&#9675;</td>
+              <td style="text-align:center; padding:8px;"><span style="font-family:monospace; font-size:10px; background:var(--dune); padding:2px 6px; border-radius:3px;">PARTNER</span></td>
+              <td style="padding:8px; font-size:11px;">A&D sector only</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="display:flex; gap:16px; margin-top:10px; font-family:monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:#888;">
+          <span>&#9679; = Has this data</span>
+          <span>&#9675; = Does not have</span>
+          <span style="color:var(--klein-blue);">&#9679; = Unique/high-value data</span>
+        </div>
+      </div>
+
+      <p style="margin-top:16px; font-size:13px; line-height:1.6;"><strong>Triangulation strategy:</strong> No single source covers all dimensions. Our Phase 2 approach will start with USASpending recipient names (firm names + NAICS + contracts), cross-reference with SAM.gov (certifications), augment with ThomasNet (capabilities + equipment), and validate through LIMEP/Ignite LI partnership (ground truth). Public sources give us the skeleton; partner data fills in capabilities.</p>
+
+      <div class="key-observation">
+        <div class="ko-label">Key Data Gap</div>
+        <p>No organization holds a unified database of manufacturer capabilities, certifications, and capacity. The most promising strategy for Phase 2 is to triangulate across multiple sources: start with USASpending recipient names (A&D firms), cross-reference with SAM.gov (certifications), augment with ThomasNet (capabilities), and validate through LIMEP/<a class="entity-link" onclick="flyToEntity('HIA-LI')" style="color:var(--highlighter);">HIA-LI</a> partnership (ground truth).</p>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Outreach Priorities -->
+    <div class="section-divider"></div>
+    <div class="narrative-section fade-in" data-section="outreach" id="section-outreach">
+      <span class="section-label">06 / Outreach Priorities</span>
+      <h2>Stakeholder Engagement Strategy</h2>
+      <p>Priority stakeholders for Phase 2, organized by engagement urgency and data access value.</p>
+
+      <div class="outreach-tier">
+        <div class="tier-header">
+          <span class="tier-badge" style="background:var(--mars);">Tier 1</span>
+          <span class="tier-title">Essential Partners &mdash; Engage Immediately</span>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">LIMEP / Amy Erikson</div>
+          <div class="oi-why">Only MEP center on LI. Has project records from 490+ companies. Consortium model connects to <a class="entity-link" onclick="flyToEntity('Farmingdale State College')">Farmingdale</a>, <a class="entity-link" onclick="flyToEntity('Suffolk County Community College (AMTC)')">SCCC</a>, <a class="entity-link" onclick="flyToEntity('Brookhaven National Laboratory')">BNL</a>, <a class="entity-link" onclick="flyToEntity('HIA-LI')">HIA-LI</a>. LIMEP is a Newlab consortium partner via ACHIEVE.</div>
+          <div class="oi-need">Need: Access to (anonymized or aggregated) manufacturer capability data from SPIR records. Introduction to active manufacturer clients.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name"><a class="entity-link" onclick="flyToEntity('Ignite Long Island (Manufacturing Consortium of LI)')">Ignite LI</a> / Jamie Moore & Judy DeBiase</div>
+          <div class="oi-why">Cross-sector manufacturing consortium. Operates Connex NY Marketplace. NYS Apprenticeship Alliance Partner. Also a LIMEP consortium partner.</div>
+          <div class="oi-need">Need: Connex platform supplier profiles. Cross-sector membership list. Introduction to manufacturers outside the Hauppauge park.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name"><a class="entity-link" onclick="flyToEntity('HIA-LI')">HIA-LI</a> / Terri Alessi-Miceli</div>
+          <div class="oi-why">Central convening node for Hauppauge park (1,400+ companies). Runs the region's largest B2B trade show. Economic Development Task Force has park-level intelligence.</div>
+          <div class="oi-need">Need: Member directory access or introduction to manufacturer members. Participation in Phase 3 validation workshop.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name"><a class="entity-link" onclick="flyToEntity('Suffolk County IDA')">Suffolk County IDA</a> / Kelly Murphy</div>
+          <div class="oi-why">Incentive provider with visibility into $2.6B in active projects. Knows which firms are investing, expanding, or at risk.</div>
+          <div class="oi-need">Need: Intelligence on recent manufacturing deals, expansions, and closures in focal sectors.</div>
+        </div>
+      </div>
+
+      <div class="outreach-tier">
+        <div class="tier-header">
+          <span class="tier-badge" style="background:var(--klein-blue);">Tier 2</span>
+          <span class="tier-title">High-Value Interviews &mdash; Phase 2</span>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Anne Shybunko-Moore, <a class="entity-link" onclick="flyToEntity('GSE Dynamics')">GSE Dynamics</a></div>
+          <div class="oi-why">Second-generation A&D manufacturer. AS9100D, DLA certified, WOSB. Crossed from aerospace into submarine/shipbuilding structures. Represents the "Grumman legacy" supply chain firsthand.</div>
+          <div class="oi-need">Need: A&D supply chain intelligence &mdash; local subs, capabilities, gaps, certification requirements, startup-to-supplier pipeline.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Phil Rugile, <a class="entity-link" onclick="flyToEntity('Institute for Workforce Advancement (IWA)')">IWA</a></div>
+          <div class="oi-why">Most dynamic workforce intermediary. Runs composites training, LaunchPad Huntington, offshore wind workforce. Co-chairs LIA Workforce Roundtable.</div>
+          <div class="oi-need">Need: Workforce pipeline reality &mdash; which training programs feed manufacturing, skills gaps, actively training employers.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">David Hamilton, <a class="entity-link" onclick="flyToEntity('Stony Brook University')">Stony Brook</a> AERTC/CEBIP</div>
+          <div class="oi-why">Clean energy incubator operator. Graduated ThermoLift and Amogy. Runs Calverton food incubator.</div>
+          <div class="oi-need">Need: Clean energy startup pipeline &mdash; who's graduating, where do they manufacture, why do some leave LI?</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Peter Donnelly, Accelerate Long Island</div>
+          <div class="oi-why">21 portfolio companies, $100M+ follow-on funding. Also SBU tech commercialization chief.</div>
+          <div class="oi-need">Need: Which startups are reaching manufacturing stage, what capabilities they need, where they source production.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Erick Hunt, <a class="entity-link" onclick="flyToEntity('Brookhaven National Laboratory')">BNL</a> Strategic Partnership Office</div>
+          <div class="oi-why">Tech transfer pipeline from national lab to industry. Technologist-in-Residence model.</div>
+          <div class="oi-need">Need: Advanced materials/manufacturing R&D capabilities. Which local firms are engaged in BNL partnerships.</div>
+        </div>
+      </div>
+
+      <div class="outreach-tier">
+        <div class="tier-header">
+          <span class="tier-badge" style="background:var(--dune); color:var(--black);">Tier 3</span>
+          <span class="tier-title">Contextual Intelligence &mdash; Opportunistic</span>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Robert B. Catell, LIA Manufacturing & Trade Committee</div>
+          <div class="oi-why">Policy perspective on LI manufacturing across all sectors. Institutional memory and board-level connections.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Rosalie Drago, Haugland Group</div>
+          <div class="oi-why">Unique cross-sector perspective from workforce, government, and private sector roles. Co-authored 2019 Suffolk IDA pharma/nutraceutical report.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Joe Campolo, <a class="entity-link" onclick="flyToEntity('HIA-LI')">HIA-LI</a> Economic Development Task Force</div>
+          <div class="oi-why">Attorney leading park economic development strategy. Legal/regulatory perspective on industrial zoning, PILOT structures.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">Ann Marie Brill, LI Angel Network / SBU Economic Development</div>
+          <div class="oi-why">Dual role gives visibility into both early-stage capital and university commercialization pipeline.</div>
+        </div>
+
+        <div class="outreach-item">
+          <div class="oi-name">SCCC AMTC Leadership</div>
+          <div class="oi-why">$2M Navy welding/CNC contract gives direct visibility into the defense manufacturing workforce pipeline. Can identify which employers are sponsoring trainees.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .narrative-panel -->
+
+  <!-- MAP PANEL -->
+  <div class="map-panel" id="map-panel">
+    <div id="main-map"></div>
+    <div class="layer-controls" id="main-controls"></div>
+    <div class="pillar-node" id="pillar-node">
+      <div class="pn-name" id="pn-name"></div>
+      <div class="pn-desc" id="pn-desc"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<section class="footer">
+  <div class="footer-brand">Prepared by</div>
+  <div class="footer-title">Granular Ecosystem Solutions for Newlab</div>
+  <div class="footer-meta">Phase 1, Deliverable 2 | April 2026</div>
+  <div class="footer-line"></div>
+  <div class="footer-meta">Long Island Manufacturing Ecosystem</div>
+  <div class="footer-meta">Stakeholder Mapping & Outreach Strategy</div>
+  <div class="footer-meta" style="margin-top:12px; font-style:italic; opacity:0.6;">Note: Company locations shown on the map are approximate and placed at town level. Precise facility addresses are still being verified and will be updated as Phase 2 research progresses.</div>
+  <div style="height: 24px;"></div>
+  <div class="footer-bottom">Newlab | Building the Future of Industry</div>
+</section>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+(function() {
+  'use strict';
+
+  // ==================================================
+  // STAKEHOLDER DATA (embedded from stakeholder_locations.json)
+  // ==================================================
+  const stakeholders = [
+    {"name":"BAE Systems","type":"prime_contractor","lat":40.8615,"lng":-73.3654,"location":"Greenlawn","description":"Largest A&D facility on LI (~600 employees), producing C4ISR systems and the world's leading IFF transponder line with 14,000+ units delivered."},
+    {"name":"RTX/Raytheon","type":"prime_contractor","lat":40.8192,"lng":-73.2105,"location":"Hauppauge","description":"Manufactures MK 15 Phalanx Close-In Weapon System components, winning a $113.6M contract in April 2023."},
+    {"name":"TTM Technologies/Telephonics","type":"prime_contractor","lat":40.7326,"lng":-73.4454,"location":"Farmingdale","description":"Produces maritime surveillance radars (AN/APS-153), MOSAIC AESA radar, and IFF systems (~700 employees, 95% defense revenue)."},
+    {"name":"Northrop Grumman","type":"prime_contractor","lat":40.7443,"lng":-73.4832,"location":"Bethpage","description":"Retains engineering/support presence supporting E-2D Advanced Hawkeye and next-generation electronic attack programs."},
+    {"name":"Air Industries Group","type":"tier1_manufacturer","lat":40.7254,"lng":-73.2454,"location":"Bay Shore","description":"Integrated manufacturer of flight-critical assemblies (landing gear, engine mounts) serving Black Hawk, E-2D, F-35, and B-1B platforms (~200+ employees)."},
+    {"name":"CPI Aerostructures","type":"tier1_manufacturer","lat":40.762,"lng":-73.3287,"location":"Edgewood","description":"Assembles structural components for C-5A, T-38C, and B-52 AESA radar rack programs (~280-300 employees, 171,000 sq ft)."},
+    {"name":"East/West Industries","type":"tier1_manufacturer","lat":40.809,"lng":-73.1132,"location":"Ronkonkoma","description":"Woman-owned small business designing crashworthy aircraft seats, selected by Bell for the FLRAA program in August 2024."},
+    {"name":"GSE Dynamics","type":"tier1_manufacturer","lat":40.8145,"lng":-73.208,"location":"Hauppauge","description":"Manufactures complex structural assemblies and hydraulic actuators for C-5, C-130, E-2D, and submarine/shipbuilding structures (~80 employees, AS9100D)."},
+    {"name":"Arkwin Industries","type":"tier1_manufacturer","lat":40.7587,"lng":-73.5871,"location":"Westbury","description":"Leader in custom precision hydraulic and fuel system components serving F-35, A-10, CH-47, and Boom Supersonic XB-1."},
+    {"name":"CIRCOR Aerospace","type":"tier1_manufacturer","lat":40.8175,"lng":-73.204,"location":"Hauppauge","description":"Clean room and centrifuge capabilities for aerospace components, recently winning a Safran Landing Systems contract tied to FLRAA."},
+    {"name":"Fluid Mechanisms","type":"tier2_supplier","lat":40.8155,"lng":-73.206,"location":"Hauppauge","description":"Machines precision airframe structures for Boeing and guided missile systems (45,000 sq ft, ~30 employees)."},
+    {"name":"Advanced Testing Technologies (ATTI)","type":"tier2_supplier","lat":40.816,"lng":-73.209,"location":"Hauppauge","description":"Designs automatic test equipment for USAF, Navy, and NATO applications."},
+    {"name":"American Aerospace Controls","type":"tier2_supplier","lat":40.734,"lng":-73.442,"location":"Farmingdale","description":"Produces transducers for aerospace and space flight applications."},
+    {"name":"Aero Structures Long Island","type":"tier2_supplier","lat":40.731,"lng":-73.448,"location":"Farmingdale","description":"Machines complex structural components for CH-47, V-22, F/A-18, and Boeing 787 (acquired Triumph Structures-LI in 2018)."},
+    {"name":"Alpha Manufacturing","type":"tier2_supplier","lat":40.7355,"lng":-73.443,"location":"Farmingdale","description":"AS9100-certified precision machine shop providing flexible manufacturing capacity for the A&D cluster."},
+    {"name":"American Pride Fasteners","type":"tier2_supplier","lat":40.727,"lng":-73.243,"location":"Bay Shore","description":"Fastener supplier serving the Long Island aerospace and defense manufacturing base."},
+    {"name":"Pronto Tool & Die","type":"tier2_supplier","lat":40.8075,"lng":-73.115,"location":"Ronkonkoma","description":"5-axis CNC milling, 7-axis CNC turning, and one of LI's largest metal stamping operations (est. 1980, 12,000 sq ft)."},
+    {"name":"G&L Precision Products","type":"tier2_supplier","lat":40.8135,"lng":-73.207,"location":"Hauppauge","description":"Precision machining job shop in the Hauppauge Industrial Park serving multiple manufacturing sectors."},
+    {"name":"HK Precision Parts","type":"tier2_supplier","lat":40.8105,"lng":-73.112,"location":"Ronkonkoma","description":"Precision parts manufacturer in the Ronkonkoma manufacturing corridor."},
+    {"name":"J&J Swiss Precision","type":"tier2_supplier","lat":40.762,"lng":-73.3287,"location":"Deer Park","description":"Swiss-type precision machining serving aerospace, defense, and medical device sectors."},
+    {"name":"Twin Precision","type":"tier2_supplier","lat":40.8095,"lng":-73.1145,"location":"Ronkonkoma","description":"Precision machining shop in the Ronkonkoma manufacturing corridor."},
+    {"name":"EDM Intelligent Solutions","type":"tier2_supplier","lat":40.815,"lng":-73.205,"location":"Hauppauge","description":"Wire EDM, sinker EDM, and laser ablation at tolerances as tight as 1 micron for jet engine, injection mold, and surgical tool applications."},
+    {"name":"Mid Island Steel","type":"tier2_supplier","lat":40.8176,"lng":-72.986,"location":"Medford","description":"Structural steel fabrication with CNC plasma cutting and drilling (30,000 sq ft)."},
+    {"name":"Maloya Metal Manufacturing","type":"tier2_supplier","lat":40.769,"lng":-73.1154,"location":"Bohemia","description":"CNC laser cutting, bending/forming, welding, and 3D printing services (50+ years in Suffolk County)."},
+    {"name":"RCE Manufacturing","type":"tier2_supplier","lat":40.814,"lng":-73.2055,"location":"Hauppauge","description":"ISO 9001-certified PCB assembly and contract electronics manufacturing."},
+    {"name":"East End Assemblies","type":"tier2_supplier","lat":40.81,"lng":-73.114,"location":"Ronkonkoma","description":"AS9100-certified circuit board assembly, wire harnesses, and box-build assemblies for aerospace, defense, and medical customers."},
+    {"name":"Orbic Electronics","type":"tier1_manufacturer","lat":40.8185,"lng":-73.2015,"location":"Hauppauge","description":"$110M reshoring project to manufacture smartphones, tablets, and 5G devices (1,000+ workers, 5M devices/year, opening 2026)."},
+    {"name":"Amneal Pharmaceuticals","type":"tier1_manufacturer","lat":40.8365,"lng":-72.9171,"location":"Yaphank","description":"Fifth-largest U.S. generic drug manufacturer with 600,000+ sq ft facility, $150M+ investment (~1,100 LI employees)."},
+    {"name":"Luitpold Pharmaceuticals / American Regent","type":"tier1_manufacturer","lat":40.8001,"lng":-72.8682,"location":"Shirley","description":"Daiichi Sankyo subsidiary and leading U.S. supplier of injectable IV iron therapies (~223 employees, ~$300M revenue)."},
+    {"name":"ScieGen Pharmaceuticals","type":"tier1_manufacturer","lat":40.817,"lng":-73.2035,"location":"Hauppauge","description":"Generic prescription drug manufacturer with capacity approaching 10 billion tablets/capsules annually and 75+ ANDAs filed."},
+    {"name":"A&Z Pharmaceutical","type":"tier1_manufacturer","lat":40.8165,"lng":-73.2045,"location":"Hauppauge","description":"Manufactures OTC drugs, generics, and supplements across two Hauppauge facilities (~162 employees)."},
+    {"name":"Ascent Pharmaceuticals / AlphaMed Bottles","type":"tier1_manufacturer","lat":40.7901,"lng":-73.2017,"location":"Central Islip","description":"Combined generic Rx manufacturing and pharma packaging operation (340,000 sq ft)."},
+    {"name":"Contract Pharmacal Corp (CPC)","type":"tier1_manufacturer","lat":40.818,"lng":-73.203,"location":"Hauppauge","description":"One of America's largest nutraceutical CMOs (~1,000 employees, 10-11 buildings, 10-11 billion dosage forms annually)."},
+    {"name":"Bactolac Pharmaceutical","type":"tier1_manufacturer","lat":40.8158,"lng":-73.2075,"location":"Hauppauge","description":"Turnkey dietary supplement manufacturer (650,000 sq ft) with cGMP, NSF, Halal, Kosher, and USDA organic capabilities."},
+    {"name":"Piping Rock Health Products","type":"tier1_manufacturer","lat":40.769,"lng":-73.1154,"location":"Bohemia/Ronkonkoma","description":"Vitamins and supplements manufacturer across 6+ LI locations (~574 employees), founded by NBTY/Nature's Bounty co-founder."},
+    {"name":"Nature's Bounty / Nestlé Health Science","type":"tier1_manufacturer","lat":40.8085,"lng":-73.1138,"location":"Ronkonkoma","description":"Historic vitamin/supplement manufacturing operation with 2,000+ local employees (current LI footprint under ownership transition)."},
+    {"name":"Applied DNA Sciences","type":"tier1_manufacturer","lat":40.9126,"lng":-73.1234,"location":"Stony Brook","description":"Completed new GMP manufacturing facility (Jan 2025) for LinearDNA enzymatic DNA synthesis platform targeting mRNA and gene therapy supply chains."},
+    {"name":"Codagenix","type":"tier1_manufacturer","lat":40.734,"lng":-73.443,"location":"Farmingdale","description":"Stony Brook spinoff advancing intranasal COVID vaccine (CoviLiv) to Phase 3 and RSV vaccine with FDA Fast Track designation."},
+    {"name":"Chembio Diagnostics","type":"tier1_manufacturer","lat":40.8176,"lng":-72.986,"location":"Medford","description":"Manufactures rapid diagnostic tests using DPP platform (~188 employees), acquired by France's Biosynex SA in 2023."},
+    {"name":"FONAR Corporation","type":"tier1_manufacturer","lat":40.7934,"lng":-73.4151,"location":"Melville","description":"Manufactures pioneering Upright MRI systems."},
+    {"name":"United-Guardian","type":"tier1_manufacturer","lat":40.8162,"lng":-73.2065,"location":"Hauppauge","description":"Produces pharmaceutical and medical lubricant products."},
+    {"name":"Leviton Manufacturing","type":"tier1_manufacturer","lat":40.7934,"lng":-73.4151,"location":"Melville","description":"Major electrical wiring and connectivity manufacturer, recent Suffolk County IDA incentive recipient."},
+    {"name":"Gemini Pharmaceuticals","type":"tier1_manufacturer","lat":40.8155,"lng":-73.206,"location":"Hauppauge","description":"Pharmaceutical manufacturer and recent Suffolk County IDA incentive recipient."},
+    {"name":"D'Addario","type":"tier1_manufacturer","lat":40.7335,"lng":-73.444,"location":"Farmingdale","description":"Musical instrument string manufacturer that pivoted to PPE production during COVID (converted drum-making equipment for face shields)."},
+    {"name":"Crosstex International","type":"tier1_manufacturer","lat":40.8148,"lng":-73.2085,"location":"Hauppauge","description":"Surged to 4 million masks per week during COVID PPE pivot from standard infection control products."},
+    {"name":"Redefine Meals","type":"tier1_manufacturer","lat":40.726,"lng":-73.244,"location":"Bay Shore","description":"Redeveloping the historic 107,000 sq ft former Entenmann's bakery into a facility capable of 200,000 meals per day."},
+    {"name":"Blue Point Brewing Company","type":"tier1_manufacturer","lat":40.7654,"lng":-73.0154,"location":"Patchogue","description":"AB InBev-owned brewery with significant production scale on Long Island."},
+    {"name":"Long Island Spirits","type":"tier1_manufacturer","lat":40.941,"lng":-72.783,"location":"Baiting Hollow","description":"Grain-to-glass distillery producing vodka, whiskey, and bourbon from locally grown crops."},
+    {"name":"Global Food Solutions","type":"tier1_manufacturer","lat":40.8168,"lng":-73.2025,"location":"Hauppauge","description":"Multiple SQF-certified food production plants serving K-12 food service programs."},
+    {"name":"Alpal Precision","type":"tier2_supplier","lat":40.706,"lng":-73.651,"location":"West Hempstead","description":"AS9100-certified precision machine shop serving the aerospace and defense supply chain."},
+    {"name":"AljoGefa","type":"tier2_supplier","lat":40.775,"lng":-73.47,"location":"Old Bethpage","description":"AS9100-certified precision machining serving the Long Island A&D cluster."},
+    {"name":"TTM Technologies (PCB Fabrication)","type":"tier2_supplier","lat":40.868,"lng":-73.428,"location":"Huntington","description":"PCB fabrication facilities in Farmingdale and Huntington supporting electronics manufacturing."},
+    {"name":"Haugland Energy Group","type":"tier1_manufacturer","lat":40.8168,"lng":-73.2025,"location":"Hauppauge","description":"Built onshore infrastructure for South Fork Wind and established O&M facility in Montauk."},
+    {"name":"SUNation Energy","type":"clean_energy","lat":40.809,"lng":-73.1132,"location":"Ronkonkoma","description":"Major Long Island solar installer (not a manufacturer), operating from Ronkonkoma."},
+    {"name":"Unique Electric Systems","type":"clean_energy","lat":40.9126,"lng":-73.1234,"location":"Stony Brook area","description":"Truck electrification company graduated from Stony Brook incubator, moved to independent LI manufacturing space."},
+    {"name":"Empire Bio Diagnostics","type":"tier1_manufacturer","lat":40.749,"lng":-73.639,"location":"Mineola","description":"Received $500,000 to manufacture viral transport media during COVID-19 pandemic."},
+    {"name":"Estée Lauder R&D","type":"incubator","lat":40.733,"lng":-73.446,"location":"Farmingdale","description":"R&D operation at Broad Hollow Bioscience Park (40,000 sq ft leased in 2022, 30+ jobs)."},
+    {"name":"New York BioGenesis Park","type":"incubator","lat":40.7701,"lng":-73.7134,"location":"Lake Success","description":"$430M cell and gene therapy hub (700,000 sq ft at full build-out) with CDMO towers and incubator, partnering CSHL, Stony Brook, and others."},
+    {"name":"Stony Brook University","type":"academic","lat":40.9126,"lng":-73.1234,"location":"Stony Brook","description":"Institutional anchor with $4.65B annual regional economic impact; hosts LIMEP, AERTC, CEBIP, CEWIT, SPIR, LIHTI, and SBDC."},
+    {"name":"LIMEP (Long Island MEP)","type":"academic","lat":40.914,"lng":-73.122,"location":"Stony Brook","description":"NIST MEP regional center at Stony Brook's CEWIT Building serving ~3,000 LI manufacturers ($1.27M annual budget, consortium model)."},
+    {"name":"AERTC / CEBIP","type":"clean_energy","lat":40.9135,"lng":-73.124,"location":"Stony Brook","description":"Advanced Energy Research and Technology Center / Clean Energy Business Incubator — NYS Center of Excellence with 7 incubator companies."},
+    {"name":"Long Island High Technology Incubator (LIHTI)","type":"incubator","lat":40.913,"lng":-73.125,"location":"Stony Brook","description":"100,000+ sq ft mixed-technology incubator at Stony Brook with 55% graduate survival rate (5.5x typical)."},
+    {"name":"Brookhaven National Laboratory","type":"academic","lat":40.8686,"lng":-72.8867,"location":"Upton","description":"DOE national laboratory. NSLS-II synchrotron (29 beamlines) and Center for Functional Nanomaterials enabling materials characterization and manufacturing R&D."},
+    {"name":"Farmingdale State College","type":"academic","lat":40.7326,"lng":-73.4454,"location":"Farmingdale","description":"ABET-accredited B.S. in Manufacturing Engineering Technology; co-leads NY Offshore Wind Training Institute; hosts Broad Hollow Bioscience Park."},
+    {"name":"Suffolk County Community College (AMTC)","type":"workforce","lat":40.7812,"lng":-73.2462,"location":"Brentwood","description":"Advanced Manufacturing Training Center offering CNC, welding, PLC/automation training; $2M Navy contract to train 500 welders/CNC operators for submarine industrial base."},
+    {"name":"Nassau Community College","type":"academic","lat":40.734,"lng":-73.589,"location":"Garden City","description":"Basic 3D printing and CAD courses; significantly less manufacturing infrastructure than SCCC."},
+    {"name":"Hofstra University","type":"academic","lat":40.7142,"lng":-73.6005,"location":"Hempstead","description":"Fred DeMatteis School of Engineering with Robotics and Advanced Manufacturing Lab and Center for Innovation."},
+    {"name":"Cold Spring Harbor Laboratory","type":"academic","lat":40.8615,"lng":-73.471,"location":"Cold Spring Harbor","description":"World-class life sciences research institution; partner in BioGenesis Park and Farmingdale bioscience park."},
+    {"name":"Composite Prototyping Center (CPC)","type":"academic","lat":40.7765,"lng":-73.4673,"location":"Plainview","description":"Only composite design, prototyping, and automated fiber placement facility in the northeastern U.S."},
+    {"name":"Calverton Food Business Incubator","type":"incubator","lat":40.9226,"lng":-72.7515,"location":"Calverton","description":"Stony Brook-operated food incubator (~24,000 sq ft) hosting 70+ food startups with ~20 new appointment requests per month."},
+    {"name":"HIA-LI","type":"industry_association","lat":40.8168,"lng":-73.2025,"location":"Hauppauge","description":"Steward of the LI Innovation Park at Hauppauge (1,400+ companies, 55,000+ employees, $13B annual output); runs region's largest B2B trade show."},
+    {"name":"Ignite Long Island (Manufacturing Consortium of LI)","type":"industry_association","lat":40.816,"lng":-73.205,"location":"Hauppauge","description":"501(c)(6) trade association representing all 12 manufacturing sectors; operates Connex NY Marketplace supply chain matching tool."},
+    {"name":"ADDAPT","type":"industry_association","lat":40.735,"lng":-73.56,"location":"Garden City (Cradle of Aviation)","description":"Aerospace Defense Diversification Alliance for Productivity and Training; coordinates A&D supply chain and advocates on Capitol Hill."},
+    {"name":"LIBio","type":"industry_association","lat":40.7934,"lng":-73.4151,"location":"Melville","description":"Trade association for Long Island's pharmaceutical, biotech, nutraceutical, and medical device cluster."},
+    {"name":"Long Island Association (LIA)","type":"industry_association","lat":40.7934,"lng":-73.4151,"location":"Melville","description":"Largest regional business association with Manufacturing & Trade Committee; Workforce Development Roundtable funded by JPMorgan Chase."},
+    {"name":"Institute for Workforce Advancement (IWA)","type":"workforce","lat":40.868,"lng":-73.428,"location":"Huntington","description":"Most dynamic LI manufacturing workforce intermediary; runs composites training, LaunchPad Huntington co-working hub, and offshore wind education."},
+    {"name":"LaunchPad Huntington","type":"incubator","lat":40.8685,"lng":-73.4275,"location":"Huntington","description":"IWA-operated co-working and innovation hub for manufacturing and clean energy workforce development."},
+    {"name":"Workforce Development Institute (WDI)","type":"workforce","lat":40.7812,"lng":-73.2462,"location":"Brentwood area","description":"Statewide workforce intermediary with previous strong LI engagement; current LI regional director unclear (potential leadership gap)."},
+    {"name":"Eastern Suffolk BOCES","type":"workforce","lat":40.7654,"lng":-73.0154,"location":"Patchogue","description":"Apprentice-standard welding programs (SMAW, MIG, TIG, FCAW) feeding the manufacturing workforce pipeline."},
+    {"name":"Nassau BOCES / Barry Tech","type":"workforce","lat":40.7587,"lng":-73.5871,"location":"Westbury","description":"$1.88M ESD workforce grant; welding and CNC plasma cutting programs with partnerships to AWISCO, Knickerbocker Partition, RW Truck Equipment."},
+    {"name":"Suffolk County IDA","type":"capital_provider","lat":40.809,"lng":-73.1132,"location":"Ronkonkoma","description":"Facilitated $157M in private capital investment in 2024; 143 active projects valued at $2.6B including Orbic, Gemini, and Leviton."},
+    {"name":"Nassau County IDA","type":"capital_provider","lat":40.749,"lng":-73.639,"location":"Mineola","description":"Manages 166 projects worth $4.6B that have created 13,870 jobs — most among LI's eight IDAs."},
+    {"name":"Empire State Development (LI Office)","type":"capital_provider","lat":40.8168,"lng":-73.2025,"location":"Hauppauge","description":"Channels Excelsior Jobs Program, Investment Tax Credit, NYSTAR Innovation Matching Grants, and $350M Long Island Investment Fund."},
+    {"name":"LIREDC","type":"capital_provider","lat":40.8168,"lng":-73.2025,"location":"Hauppauge","description":"Won $56.4M in 2025 including $30M ACHIEVE award for Regional Commercialization Corridor (50,000 sq ft hard-tech center, late 2027)."},
+    {"name":"Accelerate Long Island","type":"capital_provider","lat":40.9126,"lng":-73.1234,"location":"Stony Brook","description":"21 portfolio companies with $100M+ follow-on funding; ESD-funded Innovation Hot Spot Program ($1.25M/5yr)."},
+    {"name":"Long Island Angel Network","type":"capital_provider","lat":40.9126,"lng":-73.1234,"location":"Stony Brook","description":"Early-stage capital network co-located with SBU Economic Development; not manufacturing-specific but serves startup pipeline."},
+    {"name":"Topspin Partners","type":"capital_provider","lat":40.7701,"lng":-73.7134,"location":"Lake Success area","description":"$213M LI-based fund affiliated with Renaissance Technologies providing early-stage capital."},
+    {"name":"Newlab","type":"incubator","lat":40.8168,"lng":-73.2025,"location":"Hauppauge (planned LI site)","description":"Will operate the $30M ACHIEVE-funded 50,000 sq ft hard-tech manufacturing center for startups in advanced materials, A&D, and energy systems (late 2027)."},
+    {"name":"AMPAC (Additive Manufacturing Prototyping Center)","type":"academic","lat":40.912,"lng":-73.1245,"location":"Stony Brook","description":"Stony Brook's additive manufacturing prototyping and applications center supporting manufacturing scale-up."},
+    {"name":"NY Offshore Wind Training Institute","type":"workforce","lat":40.7326,"lng":-73.4454,"location":"Farmingdale","description":"Partnership between Farmingdale State and Stony Brook offering LI's first hands-on wind turbine training programs."},
+    {"name":"South Fork Wind O&M Facility","type":"clean_energy","lat":41.0359,"lng":-71.9545,"location":"Montauk","description":"Operations and maintenance facility for America's first utility-scale offshore wind farm (132 MW, 12 turbines, operational March 2024)."},
+    {"name":"Sunrise Wind O&M Hub","type":"clean_energy","lat":40.9468,"lng":-73.1116,"location":"East Setauket","description":"Ørsted operations hub for 924 MW Sunrise Wind project with $700M in Suffolk County investment."}
+  ];
+
+  // ==================================================
+  // TYPE CONFIGURATION
+  // ==================================================
+  const typeConfig = {
+    prime_contractor:     { label: 'Prime Contractors',     color: '#1F18C0', size: 16 },
+    tier1_manufacturer:   { label: 'Tier 1 Manufacturers',  color: '#7D2019', size: 12 },
+    tier2_supplier:       { label: 'Tier 2 Suppliers',      color: '#D6D1BE', size: 8 },
+    academic:             { label: 'Academic & Research',    color: '#DAE326', size: 14 },
+    industry_association: { label: 'Industry Associations',  color: '#E0E4E1', size: 10 },
+    workforce:            { label: 'Workforce',             color: '#00A676', size: 10 },
+    capital_provider:     { label: 'Capital Providers',     color: '#182339', size: 10 },
+    incubator:            { label: 'Incubators',            color: '#1F18C0', size: 10 },
+    clean_energy:         { label: 'Clean Energy',          color: '#4CAF50', size: 10 }
+  };
+
+  // Count by type
+  const typeCounts = {};
+  stakeholders.forEach(s => {
+    typeCounts[s.type] = (typeCounts[s.type] || 0) + 1;
+  });
+
+  // Track active types
+  const activeTypes = {};
+  Object.keys(typeConfig).forEach(t => { activeTypes[t] = true; });
+
+  // ==================================================
+  // MAP STYLE
+  // ==================================================
+  const STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+
+  // Camera presets
+  const cameras = {
+    hero:       { center: [-73.1, 40.8], zoom: 10.5, pitch: 60, bearing: -20 },
+    overview:   { center: [-73.2, 40.8], zoom: 10,   pitch: 55, bearing: -15 },
+    academic:   { center: [-73.05, 40.89], zoom: 11.5, pitch: 50, bearing: -10 },
+    associations: { center: [-73.3, 40.81], zoom: 11, pitch: 50, bearing: 0 },
+    data:       { center: [-73.2, 40.8], zoom: 10.2, pitch: 50, bearing: 10 },
+    outreach:   { center: [-73.2, 40.82], zoom: 9.8, pitch: 45, bearing: -5 },
+    ecosystem:  { center: [-73.2, 40.8], zoom: 10.2, pitch: 55, bearing: 5 }
+  };
+
+  // ==================================================
+  // PILLAR CONFIGURATION (Enhancement 4)
+  // ==================================================
+  const pillarConfig = {
+    policy_capital: {
+      name: 'Policy & Capital',
+      desc: 'Government agencies, IDAs, and investment funds channeling resources to manufacturing',
+      types: ['capital_provider']
+    },
+    convening: {
+      name: 'Convening',
+      desc: 'Industry associations connecting firms, facilitating networks and supply chains',
+      types: ['industry_association']
+    },
+    knowledge: {
+      name: 'Knowledge & Translation',
+      desc: 'Universities, labs, and incubators driving R&D and technology commercialization',
+      types: ['academic', 'incubator']
+    },
+    workforce: {
+      name: 'Workforce',
+      desc: 'Training institutions and intermediaries building the manufacturing talent pipeline',
+      types: ['workforce']
+    },
+    production: {
+      name: 'Production',
+      desc: 'Prime contractors, tier 1 manufacturers, and tier 2 precision suppliers',
+      types: ['prime_contractor', 'tier1_manufacturer', 'tier2_supplier']
+    }
+  };
+
+  let activePillar = null;
+  const LI_CENTER = [-73.2, 40.82]; // Center of Long Island for network lines
+
+  // ==================================================
+  // HERO MAP (background, ambient rotation)
+  // ==================================================
+  let heroMap;
+  let heroRotating = true;
+
+  function initHeroMap() {
+    heroMap = new maplibregl.Map({
+      container: 'hero-map',
+      style: STYLE,
+      center: cameras.hero.center,
+      zoom: cameras.hero.zoom,
+      pitch: cameras.hero.pitch,
+      bearing: cameras.hero.bearing,
+      interactive: false,
+      attributionControl: false
+    });
+
+    heroMap.on('load', () => {
+      addStakeholderMarkers(heroMap, 'hero-');
+      rotateHero();
+    });
+  }
+
+  function rotateHero() {
+    if (!heroRotating) return;
+    const bearing = heroMap.getBearing() + 0.03;
+    heroMap.setBearing(bearing);
+    requestAnimationFrame(rotateHero);
+  }
+
+  // ==================================================
+  // MAIN MAP (interactive, in split layout)
+  // ==================================================
+  let mainMap;
+  let currentPopup = null;
+  let mapReady = false;
+
+  function initMainMap() {
+    mainMap = new maplibregl.Map({
+      container: 'main-map',
+      style: STYLE,
+      center: cameras.overview.center,
+      zoom: cameras.overview.zoom,
+      pitch: cameras.overview.pitch,
+      bearing: cameras.overview.bearing,
+      attributionControl: false
+    });
+
+    mainMap.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+
+    mainMap.on('load', () => {
+      mapReady = true;
+      // Add terrain
+      try {
+        mainMap.addSource('terrain', {
+          type: 'raster-dem',
+          url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+          tileSize: 256
+        });
+        mainMap.setTerrain({ source: 'terrain', exaggeration: 1.5 });
+      } catch(e) {
+        // Terrain optional
+      }
+
+      addStakeholderLayers(mainMap);
+      buildLayerControls('main-controls');
+    });
+  }
+
+  // ==================================================
+  // ADD STAKEHOLDERS AS MAPLIBRE LAYERS
+  // ==================================================
+  function addStakeholderLayers(map) {
+    // Build GeoJSON by type
+    Object.keys(typeConfig).forEach(type => {
+      const features = stakeholders
+        .filter(s => s.type === type)
+        .map(s => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+          properties: {
+            name: s.name,
+            type: s.type,
+            location: s.location,
+            description: s.description
+          }
+        }));
+
+      const sourceId = 'src-' + type;
+      const layerId = 'layer-' + type;
+      const cfg = typeConfig[type];
+
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: features }
+      });
+
+      // Circle layer
+      map.addLayer({
+        id: layerId,
+        type: 'circle',
+        source: sourceId,
+        paint: {
+          'circle-radius': cfg.size / 2 + 2,
+          'circle-color': cfg.color,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': cfg.color === '#D6D1BE' || cfg.color === '#E0E4E1' || cfg.color === '#DAE326' ? '#888' : '#fff',
+          'circle-opacity': 0.85
+        }
+      });
+
+      // Hover: cursor and scale
+      map.on('mouseenter', layerId, (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+        const props = e.features[0].properties;
+        const coords = e.features[0].geometry.coordinates.slice();
+
+        // Show name tooltip
+        if (currentPopup) currentPopup.remove();
+        currentPopup = new maplibregl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          offset: [0, -10],
+          className: 'hover-tooltip'
+        })
+        .setLngLat(coords)
+        .setHTML('<div style="font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;padding:4px 8px;">' + props.name + '</div>')
+        .addTo(map);
+      });
+
+      map.on('mouseleave', layerId, () => {
+        map.getCanvas().style.cursor = '';
+        if (currentPopup) {
+          currentPopup.remove();
+          currentPopup = null;
+        }
+      });
+
+      // Click: detail popup
+      map.on('click', layerId, (e) => {
+        const props = e.features[0].properties;
+        const coords = e.features[0].geometry.coordinates.slice();
+        const tCfg = typeConfig[props.type];
+
+        if (currentPopup) currentPopup.remove();
+
+        const html = `
+          <div class="popup-name">${props.name}</div>
+          <span class="popup-badge" style="background:${tCfg.color}; ${(tCfg.color === '#D6D1BE' || tCfg.color === '#E0E4E1' || tCfg.color === '#DAE326') ? 'color:#333;' : ''}">${tCfg.label}</span>
+          <div class="popup-location">${props.location}</div>
+          <div class="popup-desc">${props.description}</div>
+        `;
+
+        currentPopup = new maplibregl.Popup({ closeButton: true, maxWidth: '320px', offset: [0, -12] })
+          .setLngLat(coords)
+          .setHTML(html)
+          .addTo(map);
+      });
+    });
+  }
+
+  // Simple markers for hero map (non-interactive)
+  function addStakeholderMarkers(map, prefix) {
+    Object.keys(typeConfig).forEach(type => {
+      const features = stakeholders
+        .filter(s => s.type === type)
+        .map(s => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+          properties: { name: s.name, type: s.type }
+        }));
+
+      const cfg = typeConfig[type];
+      map.addSource(prefix + type, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: features }
+      });
+
+      map.addLayer({
+        id: prefix + 'layer-' + type,
+        type: 'circle',
+        source: prefix + type,
+        paint: {
+          'circle-radius': cfg.size / 2 + 1,
+          'circle-color': cfg.color,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': cfg.color === '#D6D1BE' || cfg.color === '#E0E4E1' || cfg.color === '#DAE326' ? '#888' : '#fff',
+          'circle-opacity': 0.7
+        }
+      });
+    });
+  }
+
+  // ==================================================
+  // LAYER CONTROLS
+  // ==================================================
+  function buildLayerControls(containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '<h3>Stakeholder Layers</h3>';
+
+    Object.keys(typeConfig).forEach(type => {
+      const cfg = typeConfig[type];
+      const count = typeCounts[type] || 0;
+
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = true;
+      input.dataset.type = type;
+
+      const box = document.createElement('span');
+      box.className = 'check-box';
+      box.style.background = input.checked ? cfg.color : 'transparent';
+      box.style.borderColor = cfg.color;
+
+      const text = document.createElement('span');
+      text.textContent = cfg.label;
+
+      const countSpan = document.createElement('span');
+      countSpan.className = 'type-count';
+      countSpan.textContent = count;
+
+      input.addEventListener('change', () => {
+        activeTypes[type] = input.checked;
+        box.style.background = input.checked ? cfg.color : 'transparent';
+        const layerId = 'layer-' + type;
+        if (mainMap.getLayer(layerId)) {
+          mainMap.setLayoutProperty(layerId, 'visibility', input.checked ? 'visible' : 'none');
+        }
+      });
+
+      label.appendChild(input);
+      label.appendChild(box);
+      label.appendChild(text);
+      label.appendChild(countSpan);
+      container.appendChild(label);
+    });
+  }
+
+  // ==================================================
+  // SCROLL-TRIGGERED CAMERA ANIMATION
+  // ==================================================
+  let mapHidden = false;
+
+  function setupScrollObserver() {
+    const sections = document.querySelectorAll('.narrative-section');
+    const navEl = document.getElementById('sticky-nav');
+    const heroEl = document.getElementById('hero-section');
+    const mapPanel = document.getElementById('map-panel');
+    const narrativePanel = document.getElementById('narrative');
+
+    // Nav visibility observer (hero section)
+    const heroObserverForNav = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navEl.classList.remove('visible');
+        } else {
+          navEl.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.05 });
+    heroObserverForNav.observe(heroEl);
+
+    // Section observer for nav highlighting + camera + map fade
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Fade-in animation
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+
+        // Camera fly-to and nav highlight
+        if (entry.isIntersecting && entry.intersectionRatio > 0.25) {
+          const section = entry.target.dataset.section;
+
+          // Update nav active state
+          if (section) {
+            updateNavActive(section);
+          }
+
+          // Clear pillar network when scrolling past ecosystem section
+          if (section && section !== 'ecosystem' && typeof clearPillarNetwork === 'function') {
+            clearPillarNetwork();
+          }
+
+          // Enhancement 2: Map fade for section 05+
+          if (section === 'data' || section === 'outreach') {
+            if (!mapHidden) {
+              mapHidden = true;
+              mapPanel.classList.add('map-hidden');
+              narrativePanel.classList.add('full-width');
+            }
+          } else if (section) {
+            if (mapHidden) {
+              mapHidden = false;
+              mapPanel.classList.remove('map-hidden');
+              narrativePanel.classList.remove('full-width');
+              // Resize map after transition
+              setTimeout(() => {
+                if (mainMap) mainMap.resize();
+              }, 650);
+            }
+          }
+
+          if (section && cameras[section] && mainMap && !mapHidden) {
+            mainMap.flyTo({
+              ...cameras[section],
+              duration: 2000,
+              essential: true
+            });
+
+            // Highlight relevant layers
+            highlightSection(section);
+          }
+        }
+      });
+    }, {
+      threshold: [0.1, 0.25, 0.5],
+      rootMargin: '0px'
+    });
+
+    sections.forEach(s => observer.observe(s));
+  }
+
+  // Update nav active link
+  function updateNavActive(section) {
+    const navLinks = document.querySelectorAll('.sticky-nav .nav-link');
+    // Map outreach to data nav link (they share 05)
+    const navSection = (section === 'outreach') ? 'data' : section;
+    navLinks.forEach(link => {
+      if (link.dataset.nav === navSection) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
+
+  function highlightSection(section) {
+    // Reset all layers to normal opacity
+    Object.keys(typeConfig).forEach(type => {
+      const layerId = 'layer-' + type;
+      if (mainMap.getLayer(layerId)) {
+        mainMap.setPaintProperty(layerId, 'circle-opacity', 0.85);
+      }
+    });
+
+    // Highlight based on section
+    const dimTypes = [];
+    const brightTypes = [];
+
+    switch(section) {
+      case 'academic':
+        brightTypes.push('academic');
+        dimTypes.push('prime_contractor', 'tier1_manufacturer', 'tier2_supplier', 'industry_association', 'workforce', 'capital_provider', 'incubator', 'clean_energy');
+        break;
+      case 'associations':
+        brightTypes.push('industry_association');
+        dimTypes.push('prime_contractor', 'tier1_manufacturer', 'tier2_supplier', 'academic', 'workforce', 'capital_provider', 'incubator', 'clean_energy');
+        break;
+      case 'outreach':
+      case 'overview':
+      case 'ecosystem':
+      case 'data':
+        // Show everything at full opacity
+        break;
+    }
+
+    dimTypes.forEach(type => {
+      const layerId = 'layer-' + type;
+      if (mainMap.getLayer(layerId) && activeTypes[type]) {
+        mainMap.setPaintProperty(layerId, 'circle-opacity', 0.2);
+      }
+    });
+
+    brightTypes.forEach(type => {
+      const layerId = 'layer-' + type;
+      if (mainMap.getLayer(layerId) && activeTypes[type]) {
+        mainMap.setPaintProperty(layerId, 'circle-opacity', 1);
+      }
+    });
+  }
+
+  // ==================================================
+  // ENHANCEMENT 3: flyToEntity
+  // ==================================================
+  window.flyToEntity = function(name) {
+    const entity = stakeholders.find(s => s.name === name);
+    if (!entity) return;
+
+    const mapPanel = document.getElementById('map-panel');
+    const narrativePanel = document.getElementById('narrative');
+
+    // If map is hidden, scroll back to a section with the map first
+    if (mapHidden) {
+      mapHidden = false;
+      mapPanel.classList.remove('map-hidden');
+      narrativePanel.classList.remove('full-width');
+
+      // Scroll to academic/associations section
+      const target = document.getElementById('section-associations') || document.getElementById('section-academic');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // Wait for scroll and map to resize
+      setTimeout(() => {
+        if (mainMap) mainMap.resize();
+        setTimeout(() => {
+          doFlyTo(entity);
+        }, 400);
+      }, 650);
+    } else {
+      doFlyTo(entity);
+    }
+  };
+
+  function doFlyTo(entity) {
+    if (!mainMap || !mapReady) return;
+
+    // Close existing popup
+    if (currentPopup) {
+      currentPopup.remove();
+      currentPopup = null;
+    }
+
+    // Fly to entity
+    mainMap.flyTo({
+      center: [entity.lng, entity.lat],
+      zoom: 14,
+      pitch: 50,
+      duration: 1500,
+      essential: true
+    });
+
+    // Open popup after fly animation
+    setTimeout(() => {
+      const tCfg = typeConfig[entity.type];
+      const html = `
+        <div class="popup-name">${entity.name}</div>
+        <span class="popup-badge" style="background:${tCfg.color}; ${(tCfg.color === '#D6D1BE' || tCfg.color === '#E0E4E1' || tCfg.color === '#DAE326') ? 'color:#333;' : ''}">${tCfg.label}</span>
+        <div class="popup-location">${entity.location}</div>
+        <div class="popup-desc">${entity.description}</div>
+      `;
+
+      currentPopup = new maplibregl.Popup({ closeButton: true, maxWidth: '320px', offset: [0, -12] })
+        .setLngLat([entity.lng, entity.lat])
+        .setHTML(html)
+        .addTo(mainMap);
+    }, 1600);
+  }
+
+  // ==================================================
+  // ENHANCEMENT 4: Pillar Network Visualization
+  // ==================================================
+  window.togglePillar = function(pillarKey) {
+    if (activePillar === pillarKey) {
+      clearPillarNetwork();
+      return;
+    }
+    showPillarNetwork(pillarKey);
+  };
+
+  window.clearPillarNetwork = function() {
+    activePillar = null;
+
+    // Remove network lines layer and source
+    if (mainMap && mapReady) {
+      if (mainMap.getLayer('pillar-lines')) mainMap.removeLayer('pillar-lines');
+      if (mainMap.getSource('pillar-lines-src')) mainMap.removeSource('pillar-lines-src');
+
+      // Reset all circle opacities and sizes
+      Object.keys(typeConfig).forEach(type => {
+        const layerId = 'layer-' + type;
+        if (mainMap.getLayer(layerId)) {
+          mainMap.setPaintProperty(layerId, 'circle-opacity', 0.85);
+          mainMap.setPaintProperty(layerId, 'circle-radius', typeConfig[type].size / 2 + 2);
+        }
+      });
+    }
+
+    // Hide pillar node
+    const pnEl = document.getElementById('pillar-node');
+    pnEl.classList.remove('visible');
+
+    // Remove active class from eco-layers
+    document.querySelectorAll('.eco-layer').forEach(el => el.classList.remove('eco-active'));
+
+    // Hide clear button
+    document.getElementById('pillar-clear-btn').classList.remove('show');
+  };
+
+  function showPillarNetwork(pillarKey) {
+    if (!mainMap || !mapReady) return;
+
+    const config = pillarConfig[pillarKey];
+    if (!config) return;
+
+    // Clean up previous
+    if (mainMap.getLayer('pillar-lines')) mainMap.removeLayer('pillar-lines');
+    if (mainMap.getSource('pillar-lines-src')) mainMap.removeSource('pillar-lines-src');
+
+    activePillar = pillarKey;
+
+    // Update eco-layer active states
+    document.querySelectorAll('.eco-layer').forEach(el => {
+      if (el.dataset.pillar === pillarKey) {
+        el.classList.add('eco-active');
+      } else {
+        el.classList.remove('eco-active');
+      }
+    });
+
+    // Show clear button
+    document.getElementById('pillar-clear-btn').classList.add('show');
+
+    // Get stakeholders belonging to this pillar
+    const pillarStakeholders = stakeholders.filter(s => config.types.includes(s.type));
+
+    // Build line features from center to each stakeholder
+    const lineFeatures = pillarStakeholders.map(s => ({
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: [LI_CENTER, [s.lng, s.lat]]
+      },
+      properties: { name: s.name }
+    }));
+
+    // Add line source and layer
+    mainMap.addSource('pillar-lines-src', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: lineFeatures }
+    });
+
+    mainMap.addLayer({
+      id: 'pillar-lines',
+      type: 'line',
+      source: 'pillar-lines-src',
+      paint: {
+        'line-color': '#1F18C0',
+        'line-width': 1.5,
+        'line-opacity': 0.5,
+        'line-dasharray': [2, 2]
+      }
+    });
+
+    // Dim non-pillar types, brighten pillar types
+    Object.keys(typeConfig).forEach(type => {
+      const layerId = 'layer-' + type;
+      if (mainMap.getLayer(layerId)) {
+        if (config.types.includes(type)) {
+          mainMap.setPaintProperty(layerId, 'circle-opacity', 1);
+          mainMap.setPaintProperty(layerId, 'circle-radius', typeConfig[type].size / 2 + 4);
+        } else {
+          mainMap.setPaintProperty(layerId, 'circle-opacity', 0.15);
+          mainMap.setPaintProperty(layerId, 'circle-radius', typeConfig[type].size / 2 + 2);
+        }
+      }
+    });
+
+    // Zoom out to show all of LI
+    mainMap.flyTo({
+      center: LI_CENTER,
+      zoom: 10.5,
+      pitch: 45,
+      bearing: 0,
+      duration: 1500,
+      essential: true
+    });
+
+    // Show pillar node overlay
+    const pnEl = document.getElementById('pillar-node');
+    const pnName = document.getElementById('pn-name');
+    const pnDesc = document.getElementById('pn-desc');
+    pnName.textContent = config.name;
+    pnDesc.textContent = config.desc;
+
+    // Position at center of map panel
+    const mapPanelEl = document.getElementById('map-panel');
+    const rect = mapPanelEl.getBoundingClientRect();
+    pnEl.style.left = (rect.width / 2 - 100) + 'px';
+    pnEl.style.top = (rect.height / 2 - 30) + 'px';
+    pnEl.classList.add('visible');
+  }
+
+  // ==================================================
+  // SCROLL TO SECTION (for nav links)
+  // ==================================================
+  window.scrollToSection = function(sectionId) {
+    const el = document.getElementById('section-' + sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // ==================================================
+  // INITIALIZATION
+  // ==================================================
+  document.addEventListener('DOMContentLoaded', () => {
+    initHeroMap();
+    initMainMap();
+    setupScrollObserver();
+
+    // Stop hero rotation when user scrolls past hero
+    const heroSection = document.querySelector('.hero');
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        heroRotating = entry.isIntersecting;
+        if (heroRotating) rotateHero();
+      });
+    }, { threshold: 0.1 });
+    heroObserver.observe(heroSection);
+  });
+
+})();
+</script>
+
+</body>
+</html>
