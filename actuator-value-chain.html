@@ -418,14 +418,12 @@ details.sec > summary:hover .sec__toggle{color:var(--ink)}
       <h2 class="sec__t">The entry hypothesis</h2>
     </div>
     <p class="sec__sub">
-      Havells will want to enter humanoid actuation directly, because that tier holds the growth
-      narrative. We argue for a different order. Below we separate what we measured from what we
-      only think is true.
+      Humanoid actuation holds the growth narrative, and it is where Havells will want to enter.
+      The map argues for a different order.
     </p>
 
     <p class="sec__sub" style="margin-top:18px">
-      Start with the market structure. In most end markets few suppliers compete, and severe entry
-      requirements are the reason. Aerospace, defence, medical and semiconductor equipment are all
+      In most end markets few suppliers compete, and severe entry requirements are the reason. Aerospace, defence, medical and semiconductor equipment are all
       like this, and certification is what keeps the field small.
     </p>
     <p class="sec__sub" style="margin-top:10px">
@@ -444,12 +442,12 @@ details.sec > summary:hover .sec__toggle{color:var(--ink)}
       <div class="stat">
         <span class="stat__n">58–88%</span>
         <span class="stat__l">Of a high-precision market's parts list already covered by those inputs</span>
-        <span class="stat__s">Looks like strong capability transfer</span>
+        <span class="stat__s">Counts every input, constrained and unconstrained</span>
       </div>
       <div class="stat">
         <span class="stat__n">0–17%</span>
-        <span class="stat__l">Of that market's <em>constrained</em> inputs covered. Gear grinding is the only one that transfers</span>
-        <span class="stat__s">The transfer is almost entirely in the unconstrained half</span>
+        <span class="stat__l">Of that market's <em>constrained</em> inputs covered</span>
+        <span class="stat__s">Gear grinding is the only constrained input that transfers</span>
       </div>
     </div>
 
@@ -460,14 +458,14 @@ details.sec > summary:hover .sec__toggle{color:var(--ink)}
         <li><b>Take uncrewed systems in parallel, not after.</b> It shares no constrained input with the industrial tier, so delaying it buys nothing. Its constraint is magnets, and India's defence-drone rules already favour a non-Chinese supplier.</li>
         <li><b>Enter high-precision last</b>, with the reducer and magnet questions answered, rather than with the motor half and a list of parts to find.</li>
       </ul>
-      <p class="gaps__f">Note what this does not claim. The high-precision tier has no certification barrier, so this is not a ladder Havells must climb to earn credibility. It is an argument about cash flow and about one shared constraint. Whether gear grinding is a two-year or a ten-year problem for Havells depends on its existing gear-cutting assets, which Phase I must establish.</p>
+      <p class="gaps__f">The high-precision tier has no certification barrier, so this is not a ladder Havells must climb to earn credibility. The case for this order rests on cash flow and on one shared constraint. Whether gear grinding is a two-year or a ten-year problem for Havells depends on its existing gear-cutting assets, which Phase I must establish.</p>
     </div>
 
     <div class="untested">
       <div class="untested__t">Worth testing · not established by this map</div>
       <p class="untested__lead">
-        Three further arguments favour building the lower tiers first. We cannot settle any of them
-        from a value-chain map, and Phase I should test each against Havells' own plant.
+        Three further arguments favour building the lower tiers first. None can be settled from a
+        value-chain map. Phase I should test each against Havells' own plant.
       </p>
       <div class="untested__grid">
         <div><b>Process discipline may carry.</b><p>Metrology, heat treatment and statistical process control are shared across tolerance classes, even though the flexspline itself is a distinct process.</p></div>
@@ -1226,12 +1224,12 @@ function render(){
 
 function renderNote(){
   if (filter === "all"){
-    mapnote.innerHTML = `<b>Read across.</b> The commodity tier draws on few inputs and at most one constrained input.
+    mapnote.innerHTML = `<b>Across the tiers.</b> The commodity tier draws on few inputs and at most one constrained input.
       Each high-precision archetype draws on four to six at the same time: rare-earth separation, the
       heat-stable magnet, the reducer, the robotics-grade bearing, the absolute encoder and
-      gear-grinding capacity. Read the share rather than the count, because the count moves with how finely we split the
-      input list and the share does not. Note which single input recurs. Gear-grinding capacity appears in eleven of the fourteen end
-      markets. In seven it is the only constrained input.`;
+      gear-grinding capacity. The share is the stable comparative, because the count moves with how finely the input list is
+      split. One input recurs throughout: gear-grinding capacity appears in eleven of the fourteen end
+      markets, and in seven it is the only constrained input.`;
   } else {
     const t = TIERS[filter];
     mapnote.innerHTML = `<b>${t.name}.</b> Basis of competition: ${t.basis.toLowerCase()}.
