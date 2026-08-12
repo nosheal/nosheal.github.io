@@ -406,17 +406,21 @@ details.sec > summary:hover .sec__toggle{color:var(--ink)}
       <div class="gaps__t">What the tiers imply for sequencing</div>
       <p>
         Havells will want to enter humanoid actuation directly, because that tier holds the growth
-        narrative. But the map shows that four to six constrained inputs gate each high-precision
-        archetype at the same time. The industrial tier needs much of the same capability stack, and it needs that
-        stack <em>now</em>, against at most one constrained input. Note that the shared stack is mostly the
-        unconstrained half; gear grinding is the one constraint that genuinely transfers.
+        narrative. But four to six constrained inputs gate each high-precision archetype at the same time.
+        The industrial tier needs much of the same capability, and it needs it <em>now</em>, against at most one
+        constrained input.
+      </p>
+      <p>
+        Be precise about which part of that capability transfers. Most of the shared stack is the unconstrained
+        half, and it earns nothing. <strong>Gear-grinding capacity is the one constrained input that
+        transfers.</strong> It is the single constrained input in seven of the fourteen end markets.
       </p>
       <ul>
-        <li><b>Build in the industrial tier.</b> Sell the servo and planetary gearbox into factory automation, mobile robots and uncrewed systems. This demand pays for the stack and proves it in the field.</li>
-        <li><b>Answer the reducer and magnet questions at the same time.</b> Use a partnership, an acquisition or the Indian magnet allocation.</li>
-        <li><b>Enter the high-precision tier with both halves in place</b>, not with the motor half and a list of parts to find.</li>
+        <li><b>Build gear-grinding capacity first.</b> It is the only constrained input in seven end markets, and one of several in four more. One capability reaches eleven of the fourteen.</li>
+        <li><b>Take uncrewed systems in parallel.</b> It needs no gear grinding at all. Its only constrained inputs are magnets, and India's defence-drone rules already favour a non-Chinese supplier.</li>
+        <li><b>Then enter the high-precision tier</b> with the reducer and magnet questions answered, rather than with the motor half and a list of parts to find.</li>
       </ul>
-      <p class="gaps__f">This is a sequencing view, not a market-size ranking. We infer it from the input structure. It is not a measured finding. Phase I should test it against what Havells' own stakeholders believe.</p>
+      <p class="gaps__f">This is a sequencing view, not a market-size ranking. We infer it from the input structure. It is not a measured finding. Note also what it does not claim. The high-precision tier has no certification barrier, so this is not a ladder Havells must climb to earn credibility. It is a cash-flow sequence and a shared-constraint argument. Whether gear grinding is a two-year or a ten-year problem for Havells depends on its existing gear-cutting assets, which Phase I must establish.</p>
     </div>
   </section>
 
@@ -1172,8 +1176,9 @@ function renderNote(){
     mapnote.innerHTML = `<b>Read across.</b> The commodity tier draws on few inputs and at most one constrained input.
       Each high-precision archetype draws on four to six at the same time: rare-earth separation, the
       heat-stable magnet, the reducer, the robotics-grade bearing, the absolute encoder and
-      gear-grinding capacity. Read the share rather than the count, because the count moves with how
-      finely we split the input list and the share does not.`;
+      gear-grinding capacity. Read the share rather than the count, because the count moves with how finely we split the
+      input list and the share does not. Note which single input recurs. Gear-grinding capacity appears in eleven of the fourteen
+      end markets. In seven it is the only constrained input, and in four more it is one of several.`;
   } else {
     const t = TIERS[filter];
     mapnote.innerHTML = `<b>${t.name}.</b> Basis of competition: ${t.basis.toLowerCase()}.
