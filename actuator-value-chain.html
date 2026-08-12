@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Actuator value chain: inputs, performance tiers and end markets. Prepared for the Havells engagement.">
+
+<!-- ============================================================
+     ACTUATOR VALUE CHAIN  ·  Newlab / NO LAB  ·  August 2026
+
+     Self-contained. No external fonts, scripts, styles or images.
+     Open it locally or serve it from anywhere; nothing is fetched.
+
+     HOW TO EXTEND THIS FILE
+     -----------------------
+     1. Newlab credential content goes at INSERTION POINT A below.
+        Copy the <section class="sec"> pattern. Section numbers are
+        computed at load, so inserting one renumbers the rest.
+     2. To change a fact in the map, edit the INPUTS, ACTUATORS or
+        MARKETS objects in the <script> block. Every entry carries a
+        `src` field; keep it accurate when you edit the claim.
+     3. Severity ratings carry `prov:"source"` or `prov:"analyst"`.
+        If you change a rating, change its provenance to match.
+     4. The tier ranges and constrained-input counts are DERIVED.
+        Do not hardcode them; they recompute from the data.
+
+     AUTHORSHIP
+     ----------
+     Value-chain analysis, taxonomy and chokepoint ratings: NO LAB.
+     Newlab capability and credential content: Newlab.
+     ============================================================ -->
+
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+button{font-family:inherit}
+</style>
+<title>The Actuator Value Chain — Inputs, Tiers, End Markets</title>
+<style>
+/* ============================================================ TOKENS */
+:root{
+  --ground:#F2EEE7; --ground-2:#EAE4DA; --surface:#FBF9F5; --surface-2:#F6F2EA;
+  --ink:#151C24; --ink-2:#3E4954; --ink-3:#6E7883;
+  --rule:#D8D1C4; --rule-2:#C2B9A8;
+  --bar-bg:#1C2A39; --bar-fg:#F2EEE7; --bar-fg-2:#AEB8C2; --bar-accent:#DAE326;
+  --accent:#7D2019; --accent-soft:#F3E6E2;
+
+  /* sequential — chokepoint severity (how constrained supply is) */
+  --sev-4:#7D2019; --sev-3:#A85A2E; --sev-25:#B8794E;
+  --sev-2:#C89A72; --sev-15:#D5C6B0; --sev-1:#DCE1DE;
+
+  /* ordered ladder — actuator performance tier (deliberately not the severity hues) */
+  --tier-1:#B9C6CD; --tier-2:#8AA3B0; --tier-3:#4A6B7C; --tier-4:#1C2A39;
+  --tier-1-ink:#2A3940; --tier-2-ink:#12242C; --tier-3-ink:#FFFFFF; --tier-4-ink:#FFFFFF;
+
+  --lime:#C4CF1F; --lime-ink:#2E3105;
+  --link:#B6AC98; --link-hi:#7D2019;
+
+  --shadow:0 1px 2px rgba(21,28,36,.06), 0 8px 24px -14px rgba(21,28,36,.18);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#12171C; --ground-2:#171D24; --surface:#1A2129; --surface-2:#1F272F;
+    --ink:#EDE8DF; --ink-2:#B9C0C7; --ink-3:#8A939C;
+    --rule:#2B343D; --rule-2:#3A444E;
+    --bar-bg:#232C36; --bar-fg:#EDE8DF; --bar-fg-2:#98A2AC; --bar-accent:#DAE326;
+    --accent:#E0755A; --accent-soft:#2C1E1A;
+    --sev-4:#C0472C; --sev-3:#C7743F; --sev-25:#CE8D5C;
+    --sev-2:#C9A075; --sev-15:#7C7466; --sev-1:#414B53;
+    --tier-1:#3E4A52; --tier-2:#5E7683; --tier-3:#87A6B4; --tier-4:#C9D8E1;
+    --tier-1-ink:#E4EAEE; --tier-2-ink:#FFFFFF; --tier-3-ink:#101A20; --tier-4-ink:#101A20;
+    --lime:#DAE326; --lime-ink:#2E3105;
+    --link:#3D4750; --link-hi:#E0755A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#12171C; --ground-2:#171D24; --surface:#1A2129; --surface-2:#1F272F;
+  --ink:#EDE8DF; --ink-2:#B9C0C7; --ink-3:#8A939C;
+  --rule:#2B343D; --rule-2:#3A444E;
+  --bar-bg:#232C36; --bar-fg:#EDE8DF; --bar-fg-2:#98A2AC; --bar-accent:#DAE326;
+  --accent:#E0755A; --accent-soft:#2C1E1A;
+  --sev-4:#C0472C; --sev-3:#C7743F; --sev-25:#CE8D5C;
+  --sev-2:#C9A075; --sev-15:#7C7466; --sev-1:#414B53;
+  --tier-1:#3E4A52; --tier-2:#5E7683; --tier-3:#87A6B4; --tier-4:#C9D8E1;
+  --tier-1-ink:#E4EAEE; --tier-2-ink:#FFFFFF; --tier-3-ink:#101A20; --tier-4-ink:#101A20;
+  --lime:#DAE326; --lime-ink:#2E3105;
+  --link:#3D4750; --link-hi:#E0755A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -16px rgba(0,0,0,.7);
+}
+
+/* ============================================================ BASE */
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans);
+     font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased}
+h1,h2,h3{text-wrap:balance; margin:0}
+p{margin:0}
+.sheet{max-width:1340px; margin:0 auto; padding:0 clamp(16px,3vw,34px) 56px}
+
+.titleblock{
+  display:flex; flex-wrap:wrap; border-bottom:1.5px solid var(--ink);
+  margin-top:clamp(14px,2.4vw,26px); font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.1em; text-transform:uppercase;
+}
+.tb{padding:9px 14px 9px 0; color:var(--ink-3); white-space:nowrap}
+.tb b{font-weight:600; color:var(--ink); letter-spacing:.08em}
+.tb--brand{color:var(--accent); font-weight:700; padding-right:22px}
+.tb--push{margin-left:auto; padding-right:0}
+
+.hero{padding:clamp(26px,4vw,46px) 0 clamp(14px,2vw,22px)}
+.eyebrow{font-family:var(--mono); font-size:10px; letter-spacing:.19em;
+         text-transform:uppercase; color:var(--accent); font-weight:700}
+.hero h1{font-family:var(--mono); font-weight:600; font-size:clamp(25px,4.1vw,43px);
+         line-height:1.1; letter-spacing:-.022em; margin:16px 0 0; max-width:21ch}
+.hero h1 em{font-style:normal; color:var(--accent)}
+.hero__deck{margin-top:20px; max-width:62ch; font-size:clamp(15px,1.5vw,17px);
+            line-height:1.62; color:var(--ink-2)}
+
+.stats{display:grid; gap:1px; background:var(--rule);
+       grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+       border:1px solid var(--rule); margin-top:clamp(26px,4vw,38px)}
+.stat{background:var(--surface); padding:18px 20px 16px; display:flex; flex-direction:column; gap:7px}
+.stat__n{font-family:var(--mono); font-size:clamp(25px,3.2vw,33px); font-weight:600;
+         letter-spacing:-.03em; color:var(--accent); line-height:1; font-variant-numeric:tabular-nums}
+.stat__l{font-size:13.5px; line-height:1.42; color:var(--ink)}
+.stat__s{font-family:var(--mono); font-size:9.5px; letter-spacing:.05em; color:var(--ink-3);
+         line-height:1.45; margin-top:auto; padding-top:5px}
+
+.sec{margin-top:clamp(36px,4.4vw,58px)}
+.sec__head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;
+           border-bottom:1.5px solid var(--ink); padding-bottom:10px}
+.sec__n{font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.16em;
+        color:var(--accent); text-transform:uppercase}
+.sec__t{font-family:var(--mono); font-weight:600; letter-spacing:-.015em; font-size:clamp(17px,2.1vw,23px)}
+.sec__sub{margin-top:13px; max-width:76ch; color:var(--ink-2); font-size:14.5px; line-height:1.58}
+
+/* ---------------------------------------------- tier cards = the filter */
+.tiers{display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule);
+       grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-top:18px}
+.tier{background:var(--surface); border:0; padding:0; font:inherit; color:inherit;
+      text-align:left; cursor:pointer; display:flex; flex-direction:column;
+      transition:background .15s}
+.tier:hover{background:var(--surface-2)}
+.tier[aria-pressed="true"]{background:var(--surface-2)}
+.tier:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.tier__bar{height:5px; width:100%}
+.tier__body{padding:13px 15px 14px; display:flex; flex-direction:column; gap:6px; flex:1}
+.tier__n{font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase;
+         color:var(--ink-3); font-weight:700}
+.tier__t{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:-.01em; line-height:1.25}
+.tier__d{font-size:12px; line-height:1.45; color:var(--ink-2)}
+.tier__k{font-family:var(--mono); font-size:10px; letter-spacing:.03em; color:var(--ink);
+         margin-top:auto; padding-top:8px; font-variant-numeric:tabular-nums}
+.tier__k b{color:var(--accent); font-weight:700}
+.tier[aria-pressed="true"] .tier__t{color:var(--accent)}
+
+/* ---------------------------------------------- the map */
+.maprow{display:grid; gap:clamp(18px,2.4vw,30px); grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); margin-top:20px}
+@media (max-width:1080px){ .maprow{grid-template-columns:1fr} }
+
+.mapwrap{border:1px solid var(--rule); background:var(--surface); overflow-x:auto}
+.maphead{display:grid; grid-template-columns:1fr 1.12fr 1fr; gap:clamp(22px,3.4vw,58px);
+         padding:12px 16px 9px; border-bottom:1px solid var(--rule); min-width:660px;
+         font-family:var(--mono); font-size:8.5px; letter-spacing:.11em;
+         text-transform:uppercase; color:var(--ink-3)}
+.maphead span:nth-child(2){text-align:center}
+.maphead span:nth-child(3){text-align:right}
+
+.map{display:grid; grid-template-columns:1fr 1.12fr 1fr; gap:clamp(22px,3.4vw,58px);
+     padding:16px; position:relative; min-width:660px}
+.map__svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0}
+.col{display:flex; flex-direction:column; gap:4px; position:relative; z-index:1; min-width:0}
+.col--act,.col--mkt{justify-content:center}
+.grp{font-family:var(--mono); font-size:7.5px; letter-spacing:.13em; text-transform:uppercase;
+     color:var(--ink-3); font-weight:700; margin:7px 0 0; padding-bottom:2px;
+     border-bottom:1px solid var(--rule)}
+.grp:first-child{margin-top:0}
+
+.node{display:block; width:100%; text-align:left; font:inherit; color:inherit;
+      background:var(--surface-2); border:1px solid var(--rule); padding:6px 9px;
+      cursor:pointer; position:relative; transition:opacity .16s, border-color .16s, background .16s}
+.node:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.node--dim{opacity:.26}
+.node--on{border-color:var(--ink); background:var(--surface)}
+.node__name{display:block; font-size:11.5px; line-height:1.32; font-weight:500}
+.node__sub{display:block; font-family:var(--mono); font-size:7.5px; line-height:1.35;
+           color:var(--ink-3); margin-top:2px; letter-spacing:.02em}
+.node__meta{display:block; font-family:var(--mono); font-size:7.5px; letter-spacing:.07em;
+            font-weight:700; margin-top:4px}
+.node--inp{padding-left:13px; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 7px}
+.node--inp .node__name{flex:1 1 auto; font-size:11px; line-height:1.3}
+.node--inp .node__meta{flex:0 0 auto; margin-top:0; font-size:7px}
+.node--inp .node__sub{flex:1 0 100%; margin-top:0}
+.node--inp::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px}
+.i4::before{background:var(--sev-4)} .i3::before{background:var(--sev-3)}
+.i25::before{background:var(--sev-25)} .i2::before{background:var(--sev-2)}
+.i15::before{background:var(--sev-15)} .i1::before{background:var(--sev-1)}
+.i4 .node__meta{color:var(--sev-4)} .i3 .node__meta{color:var(--sev-3)}
+.i25 .node__meta{color:var(--sev-25)} .i2 .node__meta{color:var(--ink-3)}
+.i15 .node__meta{color:var(--ink-3)} .i1 .node__meta{color:var(--ink-3)}
+
+.node--act{padding:9px 11px; background:var(--surface)}
+.node--act .node__name{font-size:12.5px; font-weight:600}
+.node__t{display:inline-block; font-family:var(--mono); font-size:7px; font-weight:700;
+         letter-spacing:.08em; padding:2px 5px; margin-bottom:5px}
+.t1{background:var(--tier-1); color:var(--tier-1-ink)}
+.t2{background:var(--tier-2); color:var(--tier-2-ink)}
+.t3{background:var(--tier-3); color:var(--tier-3-ink)}
+.t4{background:var(--tier-4); color:var(--tier-4-ink)}
+.node__stat{display:block; font-family:var(--mono); font-size:8.5px; margin-top:5px;
+            color:var(--ink-2); letter-spacing:.02em; font-variant-numeric:tabular-nums}
+.node__stat b{color:var(--accent); font-weight:700}
+
+.gates{display:flex; gap:3px; margin-top:5px}
+.gate{width:33px; height:13px; display:flex; align-items:center; justify-content:center;
+      font-family:var(--mono); font-size:6.5px; font-weight:700; letter-spacing:.04em}
+.g-open{background:var(--sev-1); color:var(--ink-2)}
+.g-part{background:var(--sev-2); color:var(--ink)}
+.g-shut{background:var(--sev-4); color:#fff}
+
+.mapnote{padding:12px 16px; border-top:1px solid var(--rule); background:var(--surface-2);
+         font-size:12.5px; line-height:1.5; color:var(--ink-2); min-width:660px}
+.mapnote b{color:var(--ink); font-weight:650}
+
+/* ---------------------------------------------- detail */
+.detail{border:1px solid var(--rule); background:var(--surface); align-self:start;
+        position:sticky; top:18px; box-shadow:var(--shadow)}
+@media (max-width:1080px){ .detail{position:static} }
+.detail__top{padding:17px 19px 15px; border-bottom:1px solid var(--rule)}
+.detail__kind{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+              color:var(--ink-3); font-weight:600}
+.detail__name{font-family:var(--mono); font-size:17.5px; font-weight:600; letter-spacing:-.018em;
+              line-height:1.24; margin-top:8px}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+.chip{font-family:var(--mono); font-size:8.5px; font-weight:700; letter-spacing:.09em;
+      text-transform:uppercase; padding:4px 8px; border:1px solid transparent; white-space:nowrap}
+.chip--out{border-color:var(--rule-2); color:var(--ink-2)}
+.detail__types{margin-top:11px; font-family:var(--mono); font-size:9.5px; line-height:1.55;
+               letter-spacing:.03em; color:var(--ink-3); text-transform:uppercase}
+.detail__body{padding:3px 19px 16px}
+.field{padding:13px 0; border-bottom:1px dotted var(--rule-2)}
+.field:last-child{border-bottom:0}
+.field__k{font-family:var(--mono); font-size:8.5px; letter-spacing:.13em; text-transform:uppercase;
+          color:var(--ink-3); font-weight:700; margin-bottom:6px}
+.field__v{font-size:13px; line-height:1.55; color:var(--ink-2)}
+.field__v strong{color:var(--ink); font-weight:640}
+.field--hav{background:var(--surface-2); margin:13px -19px 0; padding:14px 19px;
+            border-bottom:0; border-top:1px solid var(--rule)}
+.field--hav .field__v{color:var(--ink)}
+.taglist{display:flex; flex-wrap:wrap; gap:4px; margin-top:2px}
+.tag{font-family:var(--mono); font-size:8.5px; padding:3px 6px; background:var(--ground-2);
+     border-left:3px solid var(--rule-2); color:var(--ink-2); line-height:1.3}
+.tag.k4{border-left-color:var(--sev-4); color:var(--ink)}
+.tag.k3{border-left-color:var(--sev-3); color:var(--ink)}
+.tag.k25{border-left-color:var(--sev-25); color:var(--ink)}
+.src{font-family:var(--mono); font-size:9.5px; line-height:1.5; color:var(--ink-3);
+     letter-spacing:.02em; padding:12px 19px; border-top:1px solid var(--rule); background:var(--surface-2)}
+.src b{color:var(--ink-2); font-weight:600; letter-spacing:.08em}
+
+/* ---------------------------------------------- shared blocks */
+.key{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; margin-top:18px}
+.key__i{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono);
+        font-size:9.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-2)}
+.key__sw{width:20px; height:9px; display:inline-block}
+
+.doors{display:grid; gap:clamp(16px,2vw,24px); grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); margin-top:26px}
+.door{border:1px solid var(--rule); background:var(--surface); display:flex; flex-direction:column}
+.door__bar{background:var(--bar-bg); color:var(--bar-fg); padding:11px 17px;
+           display:flex; align-items:baseline; gap:13px; flex-wrap:wrap}
+.door__tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.15em; font-weight:700; color:var(--bar-accent)}
+.door__name{font-family:var(--mono); font-size:14px; font-weight:600}
+.door__sub{font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase;
+           color:var(--ink-3); padding:13px 17px 0}
+.door__body{padding:9px 17px 17px; display:flex; flex-direction:column; gap:12px}
+.door__row{font-size:13.5px; line-height:1.55; color:var(--ink-2)}
+.door__row b{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+             color:var(--ink); display:block; margin-bottom:4px; font-weight:700}
+.flag{margin-top:auto; background:var(--accent-soft); border-top:1px solid var(--rule);
+      border-left:3px solid var(--accent); padding:13px 16px; font-size:12.5px; line-height:1.55; color:var(--ink)}
+.flag > b{font-family:var(--mono); font-size:9px; letter-spacing:.15em; text-transform:uppercase;
+          color:var(--accent); display:block; margin-bottom:5px; font-weight:700}
+.flag strong{font-weight:700; color:var(--ink); white-space:nowrap}
+
+.gaps{border:1px solid var(--rule-2); background:var(--bar-bg); color:var(--bar-fg); padding:20px 22px; margin-top:26px}
+.gaps__t{font-family:var(--mono); font-size:10px; letter-spacing:.16em; font-weight:700;
+         color:var(--bar-accent); text-transform:uppercase}
+.gaps p{color:var(--bar-fg); font-size:13.5px; line-height:1.6; margin-top:12px}
+.gaps ul{margin:15px 0 0; padding:0; list-style:none; display:grid; gap:8px;
+         grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.gaps li{font-size:13px; line-height:1.5; padding-left:15px; position:relative; color:var(--bar-fg)}
+.gaps li::before{content:"—"; position:absolute; left:0; color:var(--bar-accent)}
+.gaps__f{margin-top:15px; font-size:12.5px; color:var(--bar-fg-2) !important; line-height:1.55}
+
+.method{margin-top:18px; columns:3 280px; column-gap:30px}
+.method > div{break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:17px}
+.method h3{font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+           color:var(--accent); font-weight:700; margin-bottom:7px}
+.method p{font-size:12.5px; line-height:1.58; color:var(--ink-2)}
+.method p + p{margin-top:7px}
+
+/* collapsible section */
+details.sec > summary{list-style:none; cursor:pointer}
+details.sec > summary::-webkit-details-marker{display:none}
+details.sec > summary .sec__head{margin:0}
+.sec__toggle{margin-left:auto; font-family:var(--mono); font-size:9.5px; letter-spacing:.1em;
+             text-transform:uppercase; color:var(--ink-3); display:inline-flex; align-items:center; gap:7px}
+.sec__toggle::after{content:""; width:7px; height:7px; border-right:1.5px solid var(--ink-3);
+                    border-bottom:1.5px solid var(--ink-3); transform:rotate(45deg) translateY(-2px);
+                    transition:transform .18s}
+details[open] .sec__toggle::after{transform:rotate(225deg) translateY(-2px)}
+details.sec > summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+details.sec > summary:hover .sec__toggle{color:var(--ink)}
+.sec__openhint{margin-top:14px; margin-bottom:2px; max-width:76ch; color:var(--ink-3); font-size:13px; line-height:1.55}
+.foot{margin-top:44px; padding-top:16px; border-top:1px solid var(--rule); font-family:var(--mono);
+      font-size:9.5px; letter-spacing:.05em; color:var(--ink-3); line-height:1.7}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="titleblock">
+    <span class="tb tb--brand">NEWLAB</span>
+    <span class="tb">Client <b>Havells India Ltd</b></span>
+    <span class="tb">Subject <b>Actuator value chain</b></span>
+    <span class="tb">Scope <b>US-anchored, India annotated</b></span>
+    <span class="tb tb--push">Rev <b>Aug 2026</b></span>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Market intelligence / what we already know</div>
+    <h1>The actuator is not one market. It is <em>four</em>, and each has its own supply chain.</h1>
+    <p class="hero__deck">
+      Competitive dynamics differ sharply between the four tiers, so we map each tier separately.
+      The map connects every actuator archetype to the inputs it needs and to the end markets that buy it.
+      Each input carries a rating for how much its supply is constrained. Select any node to trace it in
+      both directions.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat__n" id="statInputs">26</span>
+        <span class="stat__l">Distinct inputs mapped across materials, precision mechanics, sensing, electronics and process capability</span>
+        <span class="stat__s">Newlab actuator value-chain research, Aug 2026</span>
+      </div>
+      <div class="stat">
+        <span class="stat__n">49–56%</span>
+        <span class="stat__l">Actuator share of a humanoid robot's bill of materials — the size of the prize</span>
+        <span class="stat__s">Western Securities / BofA / Roots Analysis — industry estimate</span>
+      </div>
+      <div class="stat">
+        <span class="stat__n">~85%</span>
+        <span class="stat__l">Harmonic Drive Systems' share of global harmonic-reducer units, 2023 — its revenue share is lower</span>
+        <span class="stat__s">HDIN Research — industry estimate</span>
+      </div>
+      <div class="stat">
+        <span class="stat__n">~92%</span>
+        <span class="stat__l">China's share of the global NdFeB magnet-and-alloy market — 2020 data, the most recent in the BIS record</span>
+        <span class="stat__s">US Commerce / BIS Section 232, citing a 2022 US DOE estimate</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="sec__head">
+      <span class="sec__n" data-autonum></span>
+      <h2 class="sec__t">Four tiers, and what each one costs to enter</h2>
+    </div>
+    <p class="sec__sub">
+      We group actuators into four tiers, because buyers, switching costs and supplier structures differ
+      sharply between them. The constrained-input count separates the tiers in supply-chain terms. It counts
+      the inputs of an archetype at moderate-to-high, high or critical chokepoint severity. Select a tier
+      to filter the map.
+    </p>
+    <div class="tiers" id="tiers"></div>
+  </section>
+
+  <section class="sec" style="margin-top:clamp(24px,3vw,34px)">
+    <div class="key" id="key"></div>
+
+    <div class="maprow">
+      <div>
+        <div class="mapwrap">
+          <div class="maphead">
+            <span>Inputs — rated by supply constraint</span>
+            <span>Actuator archetype</span>
+            <span>End markets</span>
+          </div>
+          <div class="map" id="map">
+            <svg class="map__svg" id="links" aria-hidden="true"></svg>
+            <div class="col col--inp" id="colInp"></div>
+            <div class="col col--act" id="colAct"></div>
+            <div class="col col--mkt" id="colMkt"></div>
+          </div>
+          <p class="mapnote" id="mapnote"></p>
+        </div>
+      </div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+
+    <div class="gaps">
+      <div class="gaps__t">What the tiers imply for sequencing</div>
+      <p>
+        Havells will want to enter humanoid actuation directly, because that tier holds the growth
+        narrative. But the map shows that four to six constrained inputs gate each high-precision
+        archetype at the same time. The industrial tier needs much of the same capability stack, and it needs that
+        stack <em>now</em>, against at most one constrained input. Note that the shared stack is mostly the
+        unconstrained half; gear grinding is the one constraint that genuinely transfers.
+      </p>
+      <ul>
+        <li><b>Build in the industrial tier.</b> Sell the servo and planetary gearbox into factory automation, mobile robots and uncrewed systems. This demand pays for the stack and proves it in the field.</li>
+        <li><b>Answer the reducer and magnet questions at the same time.</b> Use a partnership, an acquisition or the Indian magnet allocation.</li>
+        <li><b>Enter the high-precision tier with both halves in place</b>, not with the motor half and a list of parts to find.</li>
+      </ul>
+      <p class="gaps__f">This is a sequencing view, not a market-size ranking. We infer it from the input structure. It is not a measured finding. Phase I should test it against what Havells' own stakeholders believe.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec__head">
+      <span class="sec__n" data-autonum></span>
+      <h2 class="sec__t">Two doors, and one of them is closing</h2>
+    </div>
+    <p class="sec__sub">
+      Havells has a plausible route from either side. They demand different things, and they are not
+      mutually exclusive — an India volume base with a US qualification beachhead is a coherent pair.
+    </p>
+
+    <div class="doors">
+      <div class="door">
+        <div class="door__bar"><span class="door__tag">DOOR A</span><span class="door__name">INDIA BASE</span></div>
+        <div class="door__sub">volume, cost, non-China source</div>
+        <div class="door__body">
+          <p class="door__row"><b>Unlocks</b>A mid-range cost position. A credible allied alternative for OEMs that want to reduce their exposure to China. A domestic magnet layer through IREL's NdPr oxide, which is the only sovereign route to the most critical input in the chain.</p>
+          <p class="door__row"><b>Requires</b>An answer on the reducer. India has no large-scale strain-wave production. Buyers import almost all of it, or they use an authorised distributor.</p>
+          <p class="door__row"><b>Also unlocks a provenance pool that already exists</b>India's Ministry of Defence prohibits Chinese components in military drones. High-performance electric motors remain a documented import gap, filled largely from China. This is the same structural opening that Door B describes for the US, and it is live now.</p>
+          <p class="door__row">The drone PLI scheme was small: ₹120 crore notified in September 2021, of which about ₹98 crore was disbursed. The incentive is modest. The demand signal is not.</p>
+        </div>
+        <div class="flag">
+          <b>Live now</b>
+          The Ministry of Heavy Industries' ₹7,280 crore sintered rare-earth-magnet scheme allocates 6,000 tonnes
+          per year across five beneficiaries — capital subsidy plus sales-linked incentive, with a limited assured
+          supply of IREL NdPr oxide to the three lowest bidders. The tender issued on 20 Mar 2026. Bids close <strong>12 Aug 2026</strong> and technical bids open 13 Aug 2026.
+          Note that the ministry has extended this deadline twice, from 29 Jun to 29 Jul and then to 12 Aug, so it may extend again.
+        </div>
+      </div>
+
+      <div class="door">
+        <div class="door__bar"><span class="door__tag">DOOR B</span><span class="door__name">US BEACHHEAD</span></div>
+        <div class="door__sub">qualification-gated, protected demand</div>
+        <div class="door__body">
+          <p class="door__row"><b>Unlocks</b>DefenseScoop reported on 20 Nov 2025 that NDAA Section 848 “only called out components that store and transmit data”. The rule therefore treats motors as low risk. It reported the result as: “the majority of the unmanned aerial systems cleared through this effort have motors that are sourced in China.” If Congress closes that gap, it creates a protected demand pool. A non-Chinese motor and actuator maker can then serve that pool.</p>
+          <p class="door__row"><b>Requires</b>A US site, AS9100 certification, ITAR-compliant operations, and audited domestic content. An “assembled in USA” label is not sufficient. Havells has completed a US manufacturing joint venture once already: Havells Lighting LLC in Anderson, SC, formed on 15 Aug 2024, which makes LED drivers in-house.</p>
+        </div>
+        <div class="flag">
+          <b>Contingent</b>
+          This pool does not exist until Congress amends Section 848. If it never does, the segment reverts
+          to competing with Chinese motors on price. Door A's Indian equivalent carries no such condition,
+          which is why we rank India first and treat this as the second move rather than the first.
+        </div>
+      </div>
+    </div>
+
+    <div class="gaps">
+      <div class="gaps__t">Where desk research stops</div>
+      <p class="gaps__f" style="margin-bottom:13px; color:var(--bar-fg) !important">
+        Everything above this line came from public sources. Any competent analyst could rebuild it, given
+        the time. The five questions below are different in kind: no public source answers them, and no
+        amount of further reading will. They are answered by standing in the plant, by putting a
+        specification in front of an engineer, and by testing a part.
+      </p>
+      <ul>
+        <li>Havells' current magnet sourcing, and whether it has access to Dy/Tb-bearing grades at all</li>
+        <li>The tolerance class achievable on existing gear-cutting and shaft-machining assets</li>
+        <li>Encoder and drive make-vs-buy position</li>
+        <li>Torque density (Nm/kg) of current BLDC platforms against humanoid joint requirements</li>
+        <li>Whether Havells bid into the Ministry of Heavy Industries rare-earth magnet tender</li>
+      </ul>
+      <p class="gaps__f">That is the honest division of labour. Desk research narrowed a diffuse market question down to five decisions and one closing window. It cannot take the next step, and neither can a longer report. The next step is execution: interviews, a plant walk, a specification tested against a real part, and a supplier put under evaluation.</p>
+      <p class="gaps__f" style="margin-top:10px">One of the five is time-critical. If Havells did not bid the magnet tender, the Indian allocation route closes for this round. Four options then remain. Take a secondary offtake from a winning beneficiary, form a joint venture with one of the five, negotiate directly with IREL, or import and qualify. That branch needs an answer whatever the tender result.</p>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       INSERTION POINT A  ·  NEWLAB CREDENTIAL SECTION
+       Add Newlab capability / track-record content here.
+       Use the same markup pattern as the sections above:
+
+       <section class="sec">
+         <div class="sec__head">
+           <span class="sec__n" data-autonum></span>
+           <h2 class="sec__t">Your heading</h2>
+         </div>
+         <p class="sec__sub">Standfirst.</p>
+         <div class="method">
+           <div><h3>Sub-head</h3><p>Body copy.</p></div>
+         </div>
+       </section>
+
+       Available classes: .doors/.door (two-column cards),
+       .gaps (dark callout block), .method (multi-column prose),
+       .stats/.stat (number tiles).
+       ============================================================ -->
+  <details class="sec">
+    <summary>
+      <div class="sec__head">
+        <span class="sec__n" data-autonum></span>
+        <h2 class="sec__t">Method and limits</h2>
+        <span class="sec__toggle">Nine notes on what this can and cannot show</span>
+      </div>
+    </summary>
+    <p class="sec__openhint">Every claim above rests on these. Open them before you rely on a number.</p>
+    <div class="method">
+      <div>
+        <h3>Links show dependency, not volume</h3>
+        <p>This is a connection map, not a Sankey diagram. We know the adjacency: which inputs an archetype needs, and which end markets buy it. We do not know the flow quantities, and we did not invent them. Every link therefore has the same weight. A width-encoded diagram would imply a precision that the evidence does not support.</p>
+      </div>
+      <div>
+        <h3>The constrained-input count is a construct</h3>
+        <p>The count “N inputs, M constrained” includes each input that we rate at moderate-to-high, high or critical chokepoint severity. These ratings are our analyst judgement. They are not a market-share measure, and no other organisation reports this quantity.</p>
+        <p style="margin-top:9px"><b>The rubric.</b> CRITICAL — one country holds more than about 85% of supply, and an export-control regime is active. HIGH — one country's firms dominate, and tacit process knowledge or capital cost blocks fast entry. MOD-HIGH — qualified supply narrows sharply at the top performance class, although the mid-range is served. MODERATE — several qualified sources exist, and the limit is precision class or capacity.</p>
+        <p style="margin-top:6px">LOW-MOD — supply is concentrated but substitutable. LOW — many qualified sources, and a catalogue purchase.</p>
+        <p style="margin-top:9px"><b>The scale carries two things at once</b> — market concentration and difficulty of substitution — and we weight them by judgement, not by formula. Gate-driver ICs therefore sit below the line at 77% top-five concentration. Absolute encoders sit above it with no firm above 15%. The ICs are a catalogue purchase and the encoders are not. A second rater would not reproduce every assignment.</p>
+        <p style="margin-top:9px"><b>Threshold and granularity.</b> We cut at moderate-to-high. Cutting at high or above roughly halves the high-precision floor; cutting at moderate makes the industrial tier look constrained too. The direction of the contrast survives every cut, but its size does not.</p>
+        <p style="margin-top:9px"><b>Granularity.</b> The count also scales with how finely we split the input list. We therefore show the share as the primary comparative. A share is stable under any split where sub-inputs inherit the parent severity. A count is not.</p>
+      </div>
+      <div>
+        <h3>Archetypes are a simplification</h3>
+        <p>Real actuators cross these boundaries. A cobot joint and a humanoid joint share most of a bill of materials. Some vendors also cover more than one tier with a single platform. We draw the archetypes to make the input structure clear. We do not claim that every product fits one archetype exactly.</p>
+      </div>
+      <div>
+        <h3>Evidence tiers</h3>
+        <p>Each claim carries a label at source: measured data, industry estimate, company claim or analyst inference. Share figures from commercial research firms are indicative, not authoritative. Reducer and encoder shares vary materially between sources. We have not removed that variance.</p>
+        <p style="margin-top:9px">Severity ratings carry their own provenance marker. Ten map to the chokepoint table in the source research; the rest are our judgement, and the detail panel says which is which. Two constrained inputs — gear-grinding capacity and air bearings — rest on analyst judgement alone. Gear grinding is load-bearing for the whole sequencing argument, so treat it as the rating to challenge first.</p>
+      </div>
+      <div>
+        <h3>Trade data cannot see actuators</h3>
+        <p>Actuator content sits across HTS 8501, 8412 and 8483, and inside finished assemblies. Customs data therefore understates import dependence. No clean actuator trade series exists.</p>
+      </div>
+      <div>
+        <h3>Neither can industrial statistics</h3>
+        <p>We checked every NAICS title across the 2007, 2012, 2017 and 2022 vintages. One code contains the word actuator: 333995, Fluid Power Cylinder and Actuator Manufacturing. That code covers hydraulic and pneumatic units. No code exists for an electromechanical actuator, a servo, an encoder or a permanent magnet. The electric actuator is therefore invisible in US industrial statistics, and its output scatters across motor, gear, instrument and precision-machining codes. Anyone who states the size of the US electric-actuator industry is estimating, not counting.</p>
+      </div>
+      <div>
+        <h3>The China–Japan quality gap is thinly evidenced</h3>
+        <p>Analysts place Chinese Tier-1 reducers at 70–85% of the Japanese torque-density and lifetime benchmark. Reports also give approximately 20% higher failure rates for some Chinese flexsplines under stress. These figures rest on analyst and vendor claims. No independent bench test supports them.</p>
+      </div>
+      <div>
+        <h3>Havells capability claims</h3>
+        <p>We take these claims from the Havells Motors catalogue, Havells investor materials and public joint-venture filings. We did not verify them on site. Companies in this industry rarely disclose firm-level content depth.</p>
+      </div>
+      <div>
+        <h3>Notation</h3>
+        <p>We state magnet and oxide capacities in tonnes per year, including where source documents use MTPA. Each currency figure carries a US$ or ₹ mark. One crore is ₹10 million. Indian fiscal years end on 31 March, so FY25 is the year to March 2025. Motor sizes use IEC frame designations.</p>
+      </div>
+      <div>
+        <h3>Policy facts are volatile</h3>
+        <p>Rare-earth licensing, Section 232 outcomes and NDAA / Blue UAS rules all continue to change. China suspended Announcements 61 and 62 only until 10 Nov 2026. Every policy fact here carries its date. Confirm the current status before you act on it.</p>
+      </div>
+    </div>
+
+    <p class="foot">
+      Newlab actuator value-chain research, August 2026 · Prepared for the Havells engagement ·
+      Sources include US Commerce / BIS Section 232, MOFCOM Announcements 18 and 61/62, India Ministry of Heavy Industries,
+      Havells Motors catalogue and investor materials, DefenseScoop, HDIN Research, Interact Analysis, Morgan Stanley, Mordor, AGMA.
+    </p>
+  </section>
+</div>
+
+<script>
+/* ============================================================ DATA */
+const SEV = {
+  CRITICAL:{k:"i4", n:4}, HIGH:{k:"i3", n:3}, "MOD–HIGH":{k:"i25", n:25},
+  MODERATE:{k:"i2", n:2}, "LOW–MOD":{k:"i15", n:15}, LOW:{k:"i1", n:1}
+};
+const CONSTRAINED = new Set(["CRITICAL","HIGH","MOD–HIGH"]);
+// severity keys are sort order, not magnitude — these three swatches are dark enough to need white text
+const DARK_SWATCH = new Set([4, 3, 25]);
+
+const GROUPS = [
+  ["Materials","mat"], ["Precision mechanical","mech"], ["Sensing and feedback","sense"],
+  ["Electronics and control","elec"], ["Process capability","proc"]
+];
+
+const INPUTS = {
+ rare_earth:{g:"mat", name:"Rare-earth separation", sev:"CRITICAL", prov:"source",
+   leads:"BIS gives China over 85% of global rare-earth processing capacity and nearly 60% of mined production. Separation is the processing step. Figures near 90% circulate widely for separation specifically, but we could not attribute them to a primary source.",
+   us:"The US position is very thin. MP Materials separates at Mountain Pass, CA, and started commercial NdPr metal production at Fort Worth, TX in January 2025. MP gives a target of approximately 1,000 t/yr for finished NdFeB magnets at Fort Worth. It publishes no separate NdPr metal capacity figure.",
+   india:"IREL (India) Limited has 400 t/yr of NdPr oxide capacity. We derive from this that IREL can support roughly 1,200 t/yr of integrated NdFeB magnet production. Note that the Ministry of Heavy Industries scheme allocates 6,000 t/yr, so IREL covers approximately one fifth of it. The remainder needs imported feedstock.",
+   why:"Separation needs heavy chemical processing, many permits and much capital. Environmental lead times are long. Separation gives an oxide. Two more steps follow: oxide to metal, then metal to strip-cast alloy. Only then can a producer make a magnet.",
+   src:"BIS Section 232, 21 Sep 2022 (measured, for the 85% and 60% figures only) · MP Materials disclosures (company claim) · India Ministry of Heavy Industries / IREL scheme documents"},
+
+ magnet_hs:{g:"mat", name:"Heat-stable NdFeB magnet", sub:"dysprosium / terbium bearing", sev:"CRITICAL", prov:"source",
+   leads:"China controlled about 92% of the global NdFeB magnet-and-alloy market in 2020, with over 90% of magnet output.",
+   us:"The US base is small but it grows. Noveon Magnetics (San Marcos, TX) has sold sintered NdFeB commercially since 2023. It holds offtakes with GM, ABB and Nidec. eVAC Magnetics (Sumter, SC) shipped on 12 Dec 2025 and targets approximately 2,000 t/yr. eVAC calls that shipment the first US commercial NdFeB of the 21st century, which is the company's own claim. Vulcan Elements announced a US$918.1M plant in Benson, NC on 18 Nov 2025.",
+   india:"The Ministry of Heavy Industries has a ₹7,280 crore scheme. It allocates 6,000 t/yr across five beneficiaries. The three lowest bidders also receive a limited assured supply of IREL NdPr oxide. Bids close on 12 Aug 2026, after two extensions.",
+   why:"Heat-stable grades need dysprosium and terbium. On 4 Apr 2025, China put these two elements under a per-shipment export licence (MOFCOM Announcement No. 18). Announcements 61 and 62 of 9 Oct 2025 added extraterritorial reach. China suspended those two announcements only until 10 Nov 2026.",
+   src:"BIS Section 232, citing a 2022 US DOE estimate · MOFCOM Announcements 18, 61, 62 (policy, dated) · India Ministry of Heavy Industries scheme notification · Noveon and eVAC company disclosures"},
+
+ magnet_std:{g:"mat", name:"Standard NdFeB or ferrite magnet", sev:"LOW–MOD", prov:"analyst",
+   leads:"China supplies most of the volume. But China does not restrict light-rare-earth-only grades, or bonded NdFeB that contains no heavy rare earths. Ferrite has no constraint.",
+   us:"Available. Ferrite is not a chokepoint.", india:"Available through import; the MHI scheme would add domestic sintered capacity.",
+   why:"This magnet is adequate for the commodity tier and for many industrial-tier applications, where torque density and thermal envelope do not bind. Havells does not disclose its magnet grades, so we cannot say which grades its current product uses. <strong>Read this rating as a live question, not a settled fact.</strong> High-duty industrial servos and high torque-to-weight gimbal motors often specify UH or SH grades, which contain dysprosium. Where they do, that archetype moves onto the constrained magnet and the industrial tier stops looking unconstrained. This is the single assumption most likely to change the sequencing recommendation, and Phase I should settle it against real Havells specifications.",
+   src:"MOFCOM Announcement No. 18 scope (policy, dated) · Newlab analysis"},
+
+ esteel:{g:"mat", name:"Thin-gauge electrical steel", sub:"non-grain-oriented, CoFe", sev:"MODERATE", prov:"source",
+   leads:"Japan and the EU, plus one genuine US niche.",
+   us:"Arnold Magnetic Technologies makes Arnon 4/5/7 at 0.004–0.007 inch in the US. Arnold states core loss as much as 50% lower than standard NGO. Bulk NGO capacity for the power sector is tight, and Cleveland-Cliffs holds most of it. That tightness is not the same as the thin gauge an actuator needs, which Arnold makes domestically. We rate this moderate for that reason. Rate it one level higher and the commodity and industrial tiers stop reading as unconstrained, so this rating carries much of the tier contrast.",
+   india:"Not established in this research.",
+   why:"Gauge controls core loss, and core loss controls torque density and thermal envelope. The binding constraint is the ability to roll to gauge at width and flatness, not steel availability. India has a documented structural gap in electrical steel. That gap is in the grain-oriented grade used for transformers, not the non-grain-oriented gauge a motor needs. GTRI put the grain-oriented shortfall near 30% of demand, with no domestic capacity before 2027. Treat that as a signal about supply position, not as a motor-grade finding.",
+   src:"Arnold product data (company claim) · US power-sector trade group filings"},
+
+ copper:{g:"mat", name:"Copper wire, housings, structural materials", sev:"LOW", prov:"analyst",
+   leads:"Many suppliers serve this input, with some concentration.",
+   us:"Adequate. LS Cable announced a US$689M Chesapeake, VA expansion on 12 Dec 2025 for copper rod, magnet wire and rare-earth magnets.",
+   india:"Domestic. Havells is itself one of India's largest cable and wire manufacturers.",
+   why:"This input is not a chokepoint. Aerospace high-temperature insulation systems are the one specialised exception.",
+   src:"Newlab actuator value-chain research"},
+
+ seals:{g:"mat", name:"Seals, elastomers, hydraulic fluid", sev:"LOW–MOD", prov:"analyst",
+   leads:"Many suppliers serve this input. Specialised aerospace grades have a narrower supply.",
+   us:"Adequate.", india:"Adequate.",
+   why:"These materials are the base for hydraulic and pneumatic actuation. Commodity grades have no constraint. Aerospace-qualified elastomers have a narrower supply.",
+   src:"Newlab actuator value-chain research"},
+
+ magnetize:{g:"proc", name:"Magnetizing equipment", sev:"MODERATE", prov:"analyst",
+   leads:"Specialist builders in Germany, Japan and the US.",
+   us:"Available.", india:"Not established in this research.",
+   why:"Every permanent-magnet machine needs magnetization, either of the component or of the assembled rotor. At torque-motor scale this is a real capital and safety item, and it is equipment an induction-motor plant does not have.",
+   src:"Source report process-capability list · Newlab actuator value-chain research"},
+
+ balancing:{g:"proc", name:"Rotor dynamic balancing", sev:"LOW", prov:"analyst",
+   leads:"Widely supplied.", us:"Available.",
+   india:"Havells operates a mechanical test lab at Neemrana. It does not publish its balancing capability separately.",
+   why:"Any rotor that turns at speed needs dynamic balancing. The equipment is purchasable and the process is well documented.",
+   src:"Source report process-capability list"},
+
+ brake:{g:"mech", name:"Power-off holding brake", sev:"LOW–MOD", prov:"analyst",
+   leads:"Kendrion, Mayr, Ogura and others supply the industrial and robotics classes.",
+   us:"Available.", india:"Not established in this research.",
+   why:"Robot joints, industrial servos and valve actuators ship a fail-safe holding brake as standard content. It holds position when power is lost. Havells does not currently make one.",
+   src:"Newlab actuator value-chain research"},
+
+ bearing_std:{g:"mech", name:"Standard rolling bearings", sev:"LOW", prov:"analyst",
+   leads:"SKF, Schaeffler, NSK, NTN and many others.", us:"Available.",
+   india:"Domestic supply exists.",
+   why:"Ordinary deep-groove and angular-contact bearings, as distinct from the robotics-grade crossed-roller class. Not a chokepoint.",
+   src:"Newlab actuator value-chain research"},
+
+ grease:{g:"mat", name:"Precision reducer grease and lubricants", sev:"MODERATE", prov:"analyst",
+   leads:"Japanese formulators hold most of the strain-wave and cycloidal reducer grease supply.",
+   us:"Limited.", india:"Not established in this research.",
+   why:"Reducer grease formulation is an under-appreciated dependency. It sets lifetime and backlash stability under high cycle counts, and reducer makers qualify specific formulations.",
+   src:"Newlab actuator value-chain research"},
+
+ hydpump:{g:"mech", name:"Variable-displacement pump and manifold", sev:"MODERATE", prov:"analyst",
+   leads:"Parker, Bosch Rexroth, Moog and Eaton.", us:"Strong.",
+   india:"Not established in this research.",
+   why:"The pump is what makes an electro-hydrostatic actuator different from an electromechanical one. It is the component that closes the hydraulic loop inside the unit.",
+   src:"Newlab actuator value-chain research"},
+
+ harmonic:{g:"mech", name:"Strain-wave (harmonic) reducer", sev:"HIGH", prov:"source",
+   leads:"Japan. Harmonic Drive Systems held about 85% of the global harmonic-reducer market in 2023; HDS and Nabtesco together account for roughly 45–50% of combined reducer revenue.",
+   us:"Harmonic Drive LLC makes strain-wave gears in Massachusetts. Mars rovers and the ISS use these gears. But the Japanese parent owns the company, and it does not disclose the US raw-material content.",
+   india:"No large-scale domestic production. Procurement is almost entirely import or authorised distributor. Indian robotics builders report that they cannot source harmonic drives or crossed-roller bearings locally. They design around the gap and use local machining shops for the rest.",
+   why:"The flexspline process is a trade secret. It combines fatigue metallurgy and precision grinding, and defect rates are above 5% in high-volume runs. A precision-reducer facility costs more than US$50M. In 2018, domestic harmonic reducers were less than 5% of the units in Chinese-assembled robots. By 2024 they were more than 35%. That change took six years of state-backed effort.",
+   src:"HDIN Research (industry estimate) · Harmonic Drive LLC (company claim) · CRIA via industry analysts"},
+
+ cycloidal:{g:"mech", name:"Cycloidal (RV) reducer", sev:"HIGH", prov:"source",
+   leads:"Japan. Nabtesco is dominant at roughly 22–25% of combined harmonic and cycloidal revenue, standard at FANUC, ABB, Yaskawa and Kawasaki.",
+   us:"The US position is very thin. We found no US cycloidal-reducer producer at scale.", india:"No domestic production at scale. Indian industrial-robot builders import this reducer.",
+   why:"This reducer has the same tacit-knowledge and tolerance-stack problem as strain-wave gearing. Torque and shock loads are higher. By 2025, the Chinese entrants Zhongda Leader and Zhenkang supplied more than 30% of Chinese domestic industrial-robot production.",
+   src:"Interact Analysis (industry estimate) · vendor and analyst sources — directional"},
+
+ planetary:{g:"mech", name:"Precision planetary gearbox", sev:"MODERATE", prov:"analyst",
+   leads:"Many suppliers compete: German, Japanese, Taiwanese and Chinese.",
+   us:"Present. Several US and European suppliers serve industrial precision.", india:"India has capability. Suppliers import the high-precision classes.",
+   why:"<strong>This gearbox is much easier to source than a strain-wave or cycloidal reducer.</strong> Several qualified sources exist at industrial precision. The process is gear-cutting, not flexspline metallurgy. This gearing makes the industrial tier reachable when the high-precision tier is not.",
+   src:"Newlab actuator value-chain research"},
+
+ ballscrew:{g:"mech", name:"Ball screw and lead screw", sev:"MODERATE", prov:"analyst",
+   leads:"THK and NSK (Japan) and HIWIN (Taiwan) lead. Thomson and PBC Linear supply from the US.",
+   us:"Present.", india:"Not established in this research.",
+   why:"The ball screw is mature, and several suppliers serve industrial precision. At machine-tool precision, only the Japanese and Taiwanese leaders qualify.",
+   src:"Vendor disclosures (company claim)"},
+
+ rollerscrew:{g:"mech", name:"Planetary roller screw", sev:"MODERATE", prov:"source",
+   leads:"Switzerland and Sweden — Rollvis, GSA and Ewellix lead high precision. Ewellix was SKF's linear-motion business and is now owned by Schaeffler.",
+   us:"The US has real capability: Nook Industries (Cleveland, OH), Creative Motion Control, Moog in-house, and Exlar / Curtiss-Wright.",
+   india:"Not established in this research.",
+   why:"Thread grinding is the difficult step. Tesla's Optimus uses 14 planetary roller screws for each robot, and Morgan Stanley estimated US$1,350–2,700 for each screw in February 2025. That gives US$18,900–37,800 for each robot. We give the per-unit figure and not a cost share, because published whole-robot bills of materials disagree. This is the most contested linear-motion input in robotics, and a Western partner is available here. Allied strain-wave sources exist too — Wittenstein, Nidec and the Harmonic Drive LLC US line — but they are fewer.",
+   src:"Morgan Stanley, Feb 2025 (industry estimate) · vendor disclosures"},
+
+ xrbearing:{g:"mech", name:"Crossed-roller / thin-section bearing", sev:"HIGH", prov:"source",
+   leads:"Japan. THK, NSK and IKO dominate robotics-grade crossed-roller bearings at ±2 arc-seconds.",
+   us:"The US position is real but small: Silverthin (Preston, WA) and RBC Bearings (Oxford, CT). Sweden's SKF acquired Kaydon, the historic US Reali-Slim specialist, in 2013.",
+   india:"India has a large general bearing industry. It has no robotics-grade crossed-roller supply. Indian robotics builders name this as one of the two parts they cannot source locally.",
+   why:"The crossed-roller raceway geometry must hold arc-second runout. It also needs clean bearing steel, which is itself a specialist supply. Vendor sources supply most of our evidence on market share here, so treat those shares as directional.",
+   src:"Vendor and distributor sources (directional) · SKF–Kaydon transaction record"},
+
+ linrail:{g:"mech", name:"Linear guides and rails", sev:"MODERATE", prov:"analyst",
+   leads:"THK, NSK, IKO (Japan), HIWIN (Taiwan), Bosch Rexroth (Germany); PBC Linear and Thomson in the US.",
+   us:"Present.", india:"Not established in this research.",
+   why:"Several suppliers serve industrial precision. At semiconductor-class straightness, few suppliers qualify.",
+   src:"Vendor disclosures (company claim)"},
+
+ airbearing:{g:"mech", name:"Air bearings", sev:"MOD–HIGH", prov:"analyst",
+   leads:"Specialist suppliers concentrated in the US, Germany and Japan.",
+   us:"Present in the semiconductor equipment supply base.", india:"Not established in this research.",
+   why:"Nanometre-class positioning needs air bearings, because rolling contact adds too much error. The supply base is narrow and application-specific. Note that this severity rating is our judgement from the narrow supplier base; the source report makes no chokepoint assessment for air bearings.",
+   src:"Newlab actuator value-chain research"},
+
+ enc_abs:{g:"sense", name:"High-resolution absolute encoder", sev:"MOD–HIGH", prov:"source",
+   leads:"Germany and the UK. Heidenhain and Renishaw (~11%) dominate high precision; optical holds roughly 48–55% share, and no firm exceeds about 15% of global revenue.",
+   us:"Mid-tier only — Honeywell, Rockwell, Bourns, BEI Sensors, Dynapar.",
+   india:"Imported. High-resolution optical encoders come almost entirely from Japan, Germany and increasingly China.",
+   why:"Humanoid and cobot joints use two encoders: one on the motor input and one on the joint output. The mid-tier encoder is now a commodity. The high-resolution absolute encoder is not.",
+   src:"Mordor (industry estimate) · vendor product data"},
+
+ enc_mid:{g:"sense", name:"Mid-tier magnetic encoder or Hall sensor", sev:"LOW", prov:"analyst",
+   leads:"Many suppliers serve this input. Chinese suppliers compete hard in the 12-bit magnetic class at approximately 30% lower bill-of-material cost.",
+   us:"Present.", india:"Available through import.",
+   why:"This encoder is a commodity. It is adequate for commutation and for industrial-precision positioning. It is not adequate for high-precision joints.",
+   src:"Newlab actuator value-chain research"},
+
+ resolver:{g:"sense", name:"Resolver / LVDT", sev:"LOW–MOD", prov:"analyst",
+   leads:"Many suppliers serve this input. Aerospace actuation uses the LVDT as standard.",
+   us:"Present and strong in the aerospace supply base.", india:"Not established in this research.",
+   why:"The resolver is rugged, analogue and easy to certify. For this reason, safety-critical actuation still specifies it instead of an optical encoder.",
+   src:"Newlab actuator value-chain research"},
+
+ forcesense:{g:"sense", name:"Torque and force sensing", sev:"MODERATE", prov:"analyst",
+   leads:"This input is specialised. Designers use strain-gauge and series-elastic methods. The actuator maker usually integrates the sensor instead of buying a finished unit.",
+   us:"Present.", india:"Not established in this research.",
+   why:"Force sensing makes a joint compliant and safe for people to work beside. Integration know-how matters more than the supply of the sensor.",
+   src:"Newlab actuator value-chain research"},
+
+ driverIC:{g:"elec", name:"Gate-driver and motor-driver ICs, MCU / DSP", sev:"LOW–MOD", prov:"source",
+   leads:"This supply is concentrated but not constrained. STMicro holds approximately 32.6% of the automotive gate-driver market. With Infineon, onsemi, TI and NXP, the five suppliers hold approximately 77%.",
+   us:"The US is strong at design: TI, onsemi, ADI and Microchip. Asia holds most wafer fabrication. That is a different risk from supplier concentration.",
+   india:"Imported.",
+   why:"This is a catalogue purchase with several qualified sources. It is not a strategic gap for an actuator maker. Capital spent on this input is capital not spent on the reducer gap or the magnet gap.",
+   src:"Automotive gate-driver share (industry estimate)"},
+
+ servodrive:{g:"elec", name:"Servo drive electronics", sev:"LOW", prov:"analyst",
+   leads:"Germany, Japan and the US — Siemens, Yaskawa, Kollmorgen, Bosch Rexroth.",
+   us:"Strong.",
+   india:"Havells operates a Power Electronics Centre of Excellence at its Bengaluru Innovation Centre. The site also holds Centres of Excellence for IoT, Software and Engineering Design, and more than 120 software engineers.",
+   why:"This input is not scarce. A manufacturer can build it. The engineering is well understood. The difficult parts are tuning and thermal management at real duty cycles.",
+   src:"Havells investor materials · Motilal Oswal, 26 May 2025 (analyst)"},
+
+ firmware:{g:"elec", name:"Control firmware and tuning IP", sev:"LOW", prov:"source",
+   leads:"US, EU and Japan. Proprietary tuning and control IP is a major moat for Moog, Kollmorgen, Siemens and Yaskawa.",
+   us:"The US is strong here. This is a competitive position, not a position that procurement rules protect.",
+   india:"Havells has adjacent capability. No public source establishes depth in motion control specifically.",
+   why:"<strong>Value has moved into this layer, and it holds the switching costs.</strong> The supply is not scarce, but the capability is. Unlike the reducer, it needs people, not a US$50M plant.",
+   src:"Incumbent disclosures (company claim) · Newlab analysis (inference)"},
+
+ netip:{g:"elec", name:"Industrial network IP", sub:"EtherCAT, CANopen, PROFINET", sev:"MODERATE", prov:"analyst",
+   leads:"Beckhoff owns EtherCAT. Yaskawa owns MECHATROLINK. PROFINET and CANopen carry their own licence terms.",
+   us:"Licensable.", india:"Licensable.",
+   why:"This layer locks customers in quietly. Interface compatibility controls whether an engineer can design an actuator into an existing line. Performance does not change that.",
+   src:"Standards body and vendor licensing terms (company claim)"},
+
+ winding:{g:"proc", name:"Stator winding and insertion equipment", sev:"LOW", prov:"analyst",
+   leads:"European and Japanese machine builders.",
+   us:"Available.",
+   india:"Havells operates automatic winding lines to IEC frame 250 at Neemrana. The plant also has automatic impregnation and vacuum impregnation.",
+   why:"This process capability is well documented, and a manufacturer can buy the equipment. It is a Havells strength, not a gap.",
+   src:"Havells Motors catalogue (company claim, primary)"},
+
+ geargrind:{g:"proc", name:"Gear grinding and precision metrology", sev:"HIGH", prov:"analyst",
+   leads:"German and Japanese builders supply high-end gear grinding and metrology: Reishauer, Kapp Niles and Zeiss. Gleason is the relevant US builder.",
+   us:"The US position is constrained. AGMA reports that 55% of gear workers are more than 44 years old. The industry names two concerns above all others: it cannot find qualified plant staff, and it cannot transfer knowledge. The 2025 State of the Gear Industry survey also identifies limits in ID/OD grinding capacity.",
+   india:"Not established in this research directly. India has a precision-gear industry, but Indian robotics builders report that robot-class gearing is imported.",
+   why:"<strong>This chokepoint receives too little attention.</strong> It gates every geared archetype. It is a workforce problem and a capital problem together. The lead time is therefore a decade, not a purchase order.",
+   src:"AGMA State of the Gear Industry 2025 (industry estimate; some age data derives from earlier surveys)"},
+
+ eoltest:{g:"proc", name:"End-of-line dynamometers and test stands", sev:"LOW–MOD", prov:"analyst",
+   leads:"Specialist suppliers, broadly available.",
+   us:"Available.",
+   india:"Havells operates an automated type-test plant and a mechanical test lab at Neemrana. A type test proves that a design conforms. A routine end-of-line test checks each unit. The two are adjacent, but they are not the same.",
+   why:"A manufacturer can buy this equipment. One distinction matters: a type test proves that a design conforms, and a routine test checks every unit that ships. These are different regimes.",
+   src:"Havells Motors catalogue (company claim, primary)"},
+
+ cleanroom:{g:"proc", name:"Cleanroom assembly and potting", sev:"MODERATE", prov:"analyst",
+   leads:"The semiconductor and medical supply chains use this as standard.",
+   us:"Present.", india:"India has cleanroom capability in pharmaceuticals and electronics. This research did not establish cleanroom capability for actuator assembly.",
+   why:"This is a facility requirement and a discipline requirement, not a technology one. But it adds qualification and audit obligations. A general motor plant does not carry those obligations.",
+   src:"Newlab actuator value-chain research"}
+};
+
+const TIERS = {
+ t1:{cls:"t1", label:"COMMODITY", name:"Commodity, high volume",
+     desc:"Precision is low. Suppliers compete on price and scale. The buyer changes supplier easily and specifies almost nothing.",
+     basis:"Price, scale"},
+ t2:{cls:"t2", label:"INDUSTRIAL", name:"Mid-range industrial precision",
+     desc:"Suppliers compete on catalogue breadth, lead time, application engineering and software ecosystem. They do not compete on unit cost alone.",
+     basis:"Catalogue, lead time, support"},
+ t3:{cls:"t3", label:"HIGH-PRECISION", name:"High precision, high torque density",
+     desc:"The buyer specifies and qualifies each input. Torque density, backlash, repeatability, stiffness and backdrivability decide the sale.",
+     basis:"Performance, qualification"},
+ t4:{cls:"t4", label:"MISSION-CRITICAL", name:"Safety and mission critical",
+     desc:"Certification record, MTBF and traceability decide the sale. The buyer changes supplier very rarely, and holds design authority tightly.",
+     basis:"Certification, MTBF, traceability"}
+};
+
+const ACTUATORS = [
+ {id:"a0", tier:"t1", name:"Three-phase LV induction motor", sub:"IEC frames 63-355, ungeared",
+  params:"Efficiency class (IE2 / IE3), frame size, rated torque, insulation class, duty type. No position feedback.",
+  inputs:["esteel","copper","winding","balancing","bearing_std","eoltest"],
+  markets:["facauto","energy","constr","bldg"],
+  hav:"<strong>This is what Neemrana actually builds.</strong> Three-phase LV induction motors, IEC frames 63-355, 0.37-350 kW, more than 20,000 units a month. Note what this archetype does not contain: no permanent magnet, no encoder, no closed-loop drive and no magnetizer. That absence is the true distance between the current product and an actuator, and it is larger than a motor-versus-motor comparison suggests.",
+  src:"Havells Motors catalogue (company claim, primary)"},
+
+ {id:"a1", tier:"t1", name:"Fractional geared motor", sub:"brushed or BLDC, gearbox integrated",
+  params:"Unit cost, life hours, acoustic noise. Positional accuracy is generally not specified.",
+  inputs:["magnet_std","esteel","copper","winding","magnetize","planetary","geargrind","driverIC","enc_mid","balancing","bearing_std","eoltest"],
+  markets:["bldg","auto"],
+  hav:"<strong>Adjacent to Havells, but not the current product.</strong> Haridwar builds BLDC fan motors at consumer volume, and those are direct drive. Neemrana builds induction motors, also ungeared. A gearmotor adds an integrated gearbox that Havells does not currently assemble, which is why gear grinding appears here as a constrained input. This is the smallest real step away from the present base.", src:"Newlab archetype construction · input list per the source report's upstream map"},
+
+ {id:"a2", tier:"t1", name:"Solenoid and simple linear actuator",
+  params:"Stroke, force, duty cycle, response time. Open-loop.",
+  inputs:["copper","winding","ballscrew","driverIC","bearing_std","eoltest"],
+  markets:["bldg","auto","energy"],
+  hav:"The existing plant can make this archetype. No input is constrained. Margins in this tier are thin, which is consistent with that, although our input count does not by itself establish the margin. Note that a plain solenoid needs no permanent magnet and no laminated core. The lead screw here belongs to the simple linear actuator, not to the solenoid.", src:"Newlab archetype construction"},
+
+ {id:"a3", tier:"t1", name:"Pneumatic cylinder and gripper",
+  params:"Bore, stroke, cycle rate, air consumption. No position feedback.",
+  inputs:["seals","copper","bearing_std","eoltest"],
+  markets:["bldg","facauto","constr"],
+  hav:"This archetype sits outside the Havells materials base. It is a seals-and-machining business, not a windings business. We include it to show the full commodity tier. It is not a candidate.", src:"Newlab archetype construction · source report taxonomy (pneumatic as the commodity workhorse)"},
+
+ {id:"a4", tier:"t2", name:"Industrial servo with planetary gearbox",
+  params:"Positional repeatability, torque ripple, duty cycle, thermal envelope.",
+  inputs:["magnet_std","esteel","copper","winding","magnetize","planetary","brake","enc_mid","driverIC","servodrive","firmware","netip","balancing","bearing_std","geargrind","eoltest"],
+  markets:["facauto","amr","cnc","constr"],
+  hav:"<strong>This is the most important archetype for Havells.</strong> It is one step from the current product, and it needs planetary gearing rather than strain-wave gearing. It also shares almost all of its capability stack with the high-precision joint: windings, drive electronics, closed-loop control and end-of-line test. Gear grinding is its one constrained input. The high-precision tier has the same constraint. Work on gear grinding here therefore gives a double return.", src:"Newlab archetype construction · source report taxonomy, mid-range industrial precision"},
+
+ {id:"a5", tier:"t2", name:"Electric linear actuator", sub:"ball screw driven",
+  params:"Load, stroke, speed, side-load tolerance, ingress protection.",
+  inputs:["magnet_std","esteel","copper","winding","magnetize","ballscrew","linrail","seals","enc_mid","driverIC","servodrive","bearing_std","eoltest"],
+  markets:["facauto","constr","energy","auto"],
+  hav:"Havells can reach this archetype. Several suppliers make ball screws at this precision class. That is not true of the roller screws that the high-precision tier needs.", src:"Newlab archetype construction"},
+
+ {id:"a6", tier:"t2", name:"Electric valve actuator", sub:"quarter-turn and multi-turn",
+  params:"Torque, fail-safe behaviour, SIL rating, enclosure class, service life.",
+  inputs:["magnet_std","esteel","copper","winding","planetary","geargrind","brake","resolver","driverIC","servodrive","firmware","seals","eoltest"],
+  markets:["energy"],
+  hav:"<strong>Distribution and certification gate this archetype, not manufacturing.</strong> That reverses the usual problem. Havells already sells switchgear, capacitors and motors to Indian industrial and process customers through an established channel. An India-first entry uses that channel, not the plant.", src:"Newlab archetype construction · valve-actuator characteristics per commercial market research (industry estimate)"},
+
+ {id:"a7", tier:"t2", name:"UAS servo and gimbal actuator",
+  params:"Mass, torque-to-weight, response bandwidth, vibration tolerance — and supply provenance.",
+  inputs:["magnet_std","esteel","copper","winding","planetary","enc_mid","driverIC","servodrive","firmware","eoltest"],
+  markets:["uncrewed"],
+  hav:"<strong>For this archetype, supply provenance gates the sale, not performance.</strong> Havells passes that gate because it is an Indian manufacturer. The technical content is close to what Neemrana and Haridwar already build. <em>Caveat:</em> this archetype is attractive only if Congress amends NDAA Section 848. If Congress does not amend it, the protected demand pool does not form. Havells then competes with Chinese motors on price.", src:"Newlab archetype construction · DefenseScoop, 20 Nov 2025 for the provenance gate"},
+
+ {id:"a8", tier:"t3", name:"Robotic rotary joint module", sub:"frameless torque motor + strain-wave reducer + dual encoder",
+  params:"Torque density (Nm/kg), backlash (arc-sec), torsional stiffness, backdrivability, dual-encoder resolution.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","harmonic","grease","xrbearing","brake","enc_abs","forcesense","driverIC","servodrive","firmware","netip","geargrind","eoltest"],
+  markets:["humanoid","indrobot"],
+  hav:"<strong>This archetype is the prize, and it is the most difficult one for Havells.</strong> Havells owns capability on the motor side of the assembly. Six constrained inputs sit on the other side. The motor content does not make this archetype difficult. The reducer, the magnet, the bearing, the encoder, rare-earth separation and gear grinding constrain it at the same time.", src:"Source report taxonomy and Tesla Optimus configuration (rotary joint = frameless motor + harmonic drive + dual encoder); constrained-input count is our own derivation"},
+
+ {id:"a9", tier:"t3", name:"Industrial robot base-axis joint", sub:"cycloidal (RV) reducer",
+  params:"Shock load capacity, lifetime under high cycle count, backlash.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","cycloidal","grease","xrbearing","brake","enc_abs","driverIC","servodrive","firmware","netip","geargrind","eoltest"],
+  markets:["indrobot"],
+  hav:"The engineering is similar to the humanoid joint, but the commercial position is worse. Nabtesco is already the standard at FANUC, ABB, Yaskawa and Kawasaki. Each OEM holds a specification that satisfies it. There is no opening in design authority.", src:"Source report competitive analysis (Nabtesco RV incumbency)"},
+
+ {id:"a10", tier:"t3", name:"Robotic linear joint", sub:"frameless motor + planetary roller screw",
+  params:"Force density, shock tolerance, backdrivability, stroke.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","rollerscrew","xrbearing","brake","enc_abs","forcesense","driverIC","servodrive","firmware","geargrind","eoltest"],
+  markets:["humanoid"],
+  hav:"This joint is more accessible than the rotary joint. Roller screws have a broad Western supply base: Rollvis, GSA and Ewellix, plus Nook and Moog in the US. Allied strain-wave sources exist but are far fewer. The linear joint is therefore the easier entry into the high-precision tier.", src:"Source report taxonomy (linear joint = frameless motor + planetary roller screw) · Morgan Stanley, Feb 2025 for roller-screw pricing"},
+
+ {id:"a11", tier:"t3", name:"Precision positioning stage", sub:"linear motor, voice coil or piezo",
+  params:"Nanometre-class repeatability, settling time, cleanliness class, straightness.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","linrail","airbearing","enc_abs","driverIC","servodrive","firmware","cleanroom","eoltest"],
+  markets:["semi","medical"],
+  hav:"This archetype is not realistic for Havells. The precision class is orders of magnitude above a low-voltage motor line. Design authority also stays with the equipment maker.", src:"Source report downstream map, semiconductor and metrology row"},
+
+ {id:"a12", tier:"t4", name:"Electromechanical flight-control actuator", sub:"EMA",
+  params:"MTBF, jam tolerance, DO-160 environmental qualification, mass, certification pedigree.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","rollerscrew","resolver","driverIC","servodrive","firmware","brake","bearing_std","geargrind","eoltest"],
+  markets:["aero","defence"],
+  hav:"Havells cannot enter this market in this decade. On the 787, EMAs operate the trimmable horizontal stabiliser, the mid-spoilers and the landing-gear brakes. Primary flight control stays electro-hydrostatic, because the industry does not yet consider EMA mature for that function. The long qualification time protects Moog, Parker, Collins and Woodward.", src:"Qiao et al., Proc. IMechE 2018 (787 EMA allocation) · source report aerospace section"},
+
+ {id:"a13", tier:"t4", name:"Electro-hydrostatic actuator", sub:"EHA",
+  params:"Force, redundancy architecture, fail-passive behaviour, certification.",
+  inputs:["seals","hydpump","copper","magnet_hs","esteel","winding","magnetize","resolver","driverIC","servodrive","firmware","bearing_std","eoltest"],
+  markets:["aero","defence"],
+  hav:"This archetype is not a candidate. We include it because the change from electro-hydraulic to electromechanical actuation is the structural story of aerospace. It also explains why that market opens slowly to new entrants.", src:"Source report aerospace section (EHA/EHSA on primary flight control)"},
+
+ {id:"a14", tier:"t4", name:"Missile fin and turret stabilisation actuator",
+  params:"Slew rate, shock and vibration tolerance, storage life, MIL-spec qualification.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","ballscrew","resolver","driverIC","servodrive","firmware","bearing_std","eoltest"],
+  markets:["defence","uncrewed"],
+  hav:"This archetype is closed to Havells directly. ITAR alone excludes a foreign manufacturer that has no US entity and no cleared operating model.", src:"Source report downstream map, defence row"},
+
+ {id:"a15", tier:"t4", name:"Medical precision actuator", sub:"surgical robotics, infusion",
+  params:"Sterilisation compatibility, force accuracy, silent operation, full traceability.",
+  inputs:["magnet_hs","rare_earth","esteel","copper","winding","magnetize","harmonic","grease","xrbearing","brake","enc_abs","forcesense","driverIC","servodrive","firmware","cleanroom","eoltest"],
+  markets:["medical"],
+  hav:"This archetype is not realistic for Havells. FDA pathways take years, and design-history-file obligations are heavy. The incumbent advantage therefore grows with every year of field data.", src:"Source report downstream map, medical row"}
+];
+
+const MARKETS = {
+ amr:{name:"Autonomous mobile robots, AGVs, warehouse", q:"open", c:"open", s:"open",
+   content:"Moderate — several drive and lift actuators per vehicle. Commercial estimates put the global autonomous mobile robot market near US$4.5–5.2bn in 2025-26, and growing at roughly 14% a year. Estimates vary widely between firms, because each draws the AMR and AGV boundary differently. Treat the level as indicative and the growth direction as the reliable part.",
+   qual:"Commercial. No certification regime stands between a competent manufacturer and a purchase order.",
+   auth:"Semi-commodity. The integrator specifies performance, not a part number.",
+   gap:"This is the only robotics market where all three gates are open. It needs precision planetary gearing and closed-loop servo control. Both are much easier than the strain-wave and heat-stable-magnet problems that gate humanoid robots.",
+   hav:"<strong>This is the most accessible robotics entry for Havells, and it builds the stack that the high-precision tier needs.</strong> The customer will also buy this year. One caution on the cost premise. Chinese reducers sell 35–60% below Japanese equivalents, and Chinese servo and coreless motors sell 40–70% below foreign alternatives. Havells competes against that price line, not against the Japanese one. This research does not establish whether an Indian cost base clears it.", src:"Newlab actuator value-chain research; end-market characteristics per the source report's downstream map"},
+ facauto:{name:"Factory automation, packaging, materials handling", q:"open", c:"part", s:"part",
+   content:"Many axes per line, across a highly fragmented SKU base.",
+   qual:"Commercial.",
+   auth:"Specified but multi-vendor; interface standards matter more than brand.",
+   gap:"Suppliers compete on catalogue breadth, lead time, application engineering and software ecosystem. They do not compete on unit cost alone. This is a distribution-and-support business as much as a manufacturing one. Demand is also fragmented across many SKUs, which is a known gate for new entrants.",
+   hav:"Havells can enter in India through its existing industrial channel. Entry outside India is difficult. The tension between catalogue and custom product applies directly. Havells is strong at volume, but this market rewards breadth and fast response.", src:"Source report, competition-and-structure section (basis of competition, demand fragmentation)"},
+ uncrewed:{name:"Uncrewed systems — UAS, UGV, UUV", q:"part", c:"open", s:"open",
+   content:"Several actuators per vehicle.",
+   qual:"Blue UAS and NDAA Section 848 — a provenance gate rather than a performance gate.",
+   auth:"Contested. The documented Chinese-motor loophole means no incumbent has locked the motor specification.",
+   gap:"DefenseScoop reported on 20 Nov 2025 that NDAA Section 848 “only called out components that store and transmit data”. The rule therefore treats motors as low risk. The same report states that “the majority of the unmanned aerial systems cleared through this effort have motors that are sourced in China”. We found no evidence that a qualified non-Chinese supplier has taken this volume, but we did not survey the cleared-vendor base directly.",
+   hav:"<strong>This is the concrete product behind Door B, and it has an Indian twin.</strong> The gate turns on supply provenance, which Havells satisfies as an Indian manufacturer. The US pool depends on Congress amending Section 848. The Indian pool does not. The Ministry of Defence already bars Chinese components from military drones, and high-performance electric motors are a named gap still filled from China. An Indian motor maker can serve that pool now, then use it to qualify for the US one later.", src:"DefenseScoop, 20 Nov 2025 (measured quote) · NDAA Section 848 / Blue UAS programme documents"},
+ bldg:{name:"Building systems, HVAC, appliances", q:"open", c:"open", s:"open",
+   content:"High volume, low value per unit.",
+   qual:"Commercial.", auth:"Commodity purchase. Easy to switch, and switched often.",
+   gap:"There is no capability gap here. The gap is strategic. A commodity purchase against commercial qualification gives no defensible position and no route upward.",
+   hav:"Havells already sells to these buyers. This row is the baseline for every other row.", src:"Source report downstream map (commodity characterisation)"},
+ energy:{name:"Energy and process — valve actuators", q:"part", c:"open", s:"part",
+   content:"Varies. Long service life and long replacement cycles.",
+   qual:"SIL certification and API conformance.", auth:"Specified, with heavy service-network lock-in.",
+   gap:"This market is approximately US$22bn in 2026, and the top ten suppliers hold more than 55%. Electric actuators are approximately 46% of revenue, and pneumatic actuators approximately 37%. Two things lock customers in: SIL certification and service networks of more than 200 centres. Emerson, Rotork, Flowserve and AUMA hold position this way.",
+   hav:"Distribution and certification gate this market, not manufacturing. An India-first entry is much more plausible than a global one.", src:"Commercial market research via the source report — market size, share and revenue split are industry estimates, not authoritative"},
+ auto:{name:"Automotive — comfort, closure, thermal", q:"part", c:"open", s:"part",
+   content:"30–100+ motors per car across all functions.",
+   qual:"IATF 16949 — a real gate, but obtainable. By-wire additionally requires ISO 26262 to ASIL-D.",
+   auth:"Tier-1 specified.",
+   gap:"Divide this market before you assess it. Comfort, closure and thermal actuation is high-volume, moderate-precision work behind a quality gate that Havells can obtain. By-wire is a different business, and suppliers are closing it now. ZF started series steer-by-wire production for the NIO ET9 in February 2025. ZF also won a brake-by-wire contract that covers almost five million vehicles.",
+   hav:"Comfort and thermal actuation fits the Havells plant. By-wire does not. The route in is to supply the Tier-1 companies that hold the specification, as a Tier-2.", src:"ZF press releases, Feb 2025 (company claim) · source report downstream map · IATF 16949 and ISO 26262 are published standards"},
+ constr:{name:"Construction, agriculture, off-highway", q:"open", c:"part", s:"part",
+   content:"High, predominantly hydraulic.",
+   qual:"Commercial.", auth:"Mixed.",
+   gap:"This market is mostly hydraulic, which is not a Havells domain. Off-highway linear actuation does move toward electric drive. But the incumbents are hydraulics companies with existing OEM relationships and field service.",
+   hav:"The fit is weak today. Review it again only if electric linear actuation grows faster, and only if Havells has already built linear capability for another market.", src:"Source report downstream map"},
+ humanoid:{name:"Humanoid and legged robots", q:"open", c:"shut", s:"open",
+   content:"~28–40+ actuators per robot. Tesla's Optimus uses 28 — 14 rotary and 14 linear. Actuators are approximately 49–56% of a humanoid robot's bill of materials, which is why this market is the prize.",
+   qual:"Emerging. No entrenched certification regime yet, which is the opportunity.",
+   auth:"OEM design authority, currently in-housed because no supplier can serve it.",
+   gap:"This market has no dominant design and no standard “engine” supplier. OEMs therefore integrate vertically because they must, not because they prefer to. Two of the three gates are open. The input gate is fully shut: strain-wave reducers, heat-stable magnets, robotics-grade bearings and absolute encoders all constrain it at the same time.",
+   hav:"This market is the prize. Havells can reach it only after it opens the input gate, which is the purpose of the sequencing argument. Note who is already here. Sanhua and Tuopu assemble actuators for Optimus, and Inovance, Estun and Leaderdrive have moved from components into modules. Unitree cut its humanoid average selling price from ¥593K in 2023 to ¥168K over January to September 2025. Havells would enter against manufacturers who moved earlier and who are cutting price fast.", src:"Source report key findings · Tesla Optimus configuration per Morgan Stanley coverage (industry estimate)"},
+ indrobot:{name:"Industrial robots and cobots", q:"part", c:"shut", s:"shut",
+   content:"4–7 joints per arm.",
+   qual:"ISO/TS 15066 for collaborative robots.", auth:"OEM-specified and hard to switch.",
+   gap:"This market is more difficult than humanoid robotics, which is not obvious. The same reducer gap applies. But an established supply base already exists, and each OEM holds a specification that satisfies it.",
+   hav:"This market has a lower priority than humanoid robotics, although the application is less demanding. We include it to show why the humanoid framing is correct.", src:"Source report competitive analysis (Nabtesco incumbency at named OEMs)"},
+ cnc:{name:"CNC machine tools, additive, capital equipment", q:"part", c:"part", s:"shut",
+   content:"High per machine.", qual:"Commercial precision.", auth:"Specified by the machine builder.",
+   gap:"The inputs themselves are obtainable — we rate ball screws and linear guides moderate, not constrained. Two other things gate this market. Machine-tool-class precision narrows the qualified supply to the Japanese and Taiwanese leaders. Machine builders also specify against installed-base reliability data, which a new entrant cannot produce.",
+   hav:"Not a realistic entry point.", src:"Source report upstream input map (ball screw and linear guide concentration)"},
+ aero:{name:"Aerospace — commercial", q:"shut", c:"part", s:"shut",
+   content:"Dozens per aircraft.",
+   qual:"DO-160, DO-178, DO-254 and AS9100. Years, not months.",
+   auth:"Held tightly by the airframer and its actuation partners.",
+   gap:"The change to electromechanical actuation is real, and it is slow. Demand is not the constraint. Airbus delivered 793 commercial aircraft in 2025 and closed the year with a record backlog of 8,754.",
+   hav:"Havells cannot enter this market in this decade. It is relevant mainly as a reason to spend capital elsewhere.", src:"Airbus FY2025 results, 19 Feb 2026 (measured) · Qiao et al., Proc. IMechE 2018 for 787 actuator allocation · DO-160/178/254 and AS9100 are published standards"},
+ defence:{name:"Defence", q:"shut", c:"part", s:"shut",
+   content:"Varies by platform.", qual:"MIL-spec and ITAR.", auth:"Sole-source relationships are common.",
+   gap:"Moog is the sole source for several US submarine, carrier and surface-ship actuators. ITAR alone also excludes a foreign manufacturer that has no US entity.",
+   hav:"This market is closed to Havells directly. Uncrewed systems is the accessible edge of the same demand pool.", src:"Source report manufacturing-layer section (Moog sole-source positions) · ITAR is published regulation"},
+ medical:{name:"Medical — surgical, imaging, infusion", q:"shut", c:"part", s:"shut",
+   content:"Varies.", qual:"ISO 13485 and an FDA pathway.", auth:"Locked, with very high switching cost.",
+   gap:"Regulatory pathways take years, and design-history-file obligations are heavy. The incumbent advantage therefore grows with every year of field data.",
+   hav:"Not realistic.", src:"ISO 13485 and FDA pathways are published regulation · source report downstream map"},
+ semi:{name:"Semiconductor and metrology equipment", q:"shut", c:"shut", s:"shut",
+   content:"High value, low count.", qual:"Extreme cleanliness and precision class.", auth:"Locked to the equipment maker.",
+   gap:"All three gates are shut. The precision class is orders of magnitude above a low-voltage motor line.",
+   hav:"Not realistic.", src:"Source report downstream map (semiconductor and metrology characteristics)"}
+};
+
+/* ============================================================ DERIVED */
+ACTUATORS.forEach(a => {
+  a.nIn = a.inputs.length;
+  a.nCon = a.inputs.filter(i => CONSTRAINED.has(INPUTS[i].sev)).length;
+  // Share, not just count. A raw count scales with how finely we chose to split the input
+  // taxonomy; a share is invariant to any split where sub-inputs inherit the parent severity.
+  a.share = a.nIn ? a.nCon / a.nIn : 0;
+});
+const pct = x => Math.round(x * 100) + "%";
+Object.keys(TIERS).forEach(t => {
+  const as = ACTUATORS.filter(a => a.tier === t);
+  TIERS[t].count = as.length;
+  TIERS[t].lo = Math.min(...as.map(a => a.nCon));
+  TIERS[t].hi = Math.max(...as.map(a => a.nCon));
+  TIERS[t].inLo = Math.min(...as.map(a => a.nIn));
+  TIERS[t].inHi = Math.max(...as.map(a => a.nIn));
+  TIERS[t].shLo = Math.min(...as.map(a => a.share));
+  TIERS[t].shHi = Math.max(...as.map(a => a.share));
+});
+
+/* ============================================================ STATE */
+let filter = "all";
+let sel = {type:"act", id:"a8"};
+
+const el = id => document.getElementById(id);
+const colInp = el("colInp"), colAct = el("colAct"), colMkt = el("colMkt");
+const svg = el("links"), map = el("map"), detail = el("detail"), mapnote = el("mapnote");
+
+function visibleActs(){
+  return ACTUATORS.filter(a => filter === "all" || a.tier === filter);
+}
+function visibleInputs(){
+  const s = new Set(); visibleActs().forEach(a => a.inputs.forEach(i => s.add(i)));
+  return Object.keys(INPUTS).filter(k => s.has(k));
+}
+function visibleMarkets(){
+  const s = new Set(); visibleActs().forEach(a => a.markets.forEach(m => s.add(m)));
+  return Object.keys(MARKETS).filter(k => s.has(k));
+}
+
+/* ============================================================ TIER CARDS */
+function buildTiers(){
+  const wrap = el("tiers");
+  const mk = (key, t) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "tier"; b.dataset.t = key;
+    b.setAttribute("aria-pressed", String(filter === key));
+    const bar = key === "all"
+      ? `<span class="tier__bar" style="background:linear-gradient(90deg,var(--tier-1),var(--tier-2),var(--tier-3),var(--tier-4))"></span>`
+      : `<span class="tier__bar" style="background:var(--${key.replace('t','tier-')})"></span>`;
+    b.innerHTML = bar + `<span class="tier__body">
+        <span class="tier__n">${key === "all" ? "All tiers" : t.label}</span>
+        <span class="tier__t">${key === "all" ? "The whole chain" : t.name}</span>
+        <span class="tier__d">${key === "all"
+          ? `${ACTUATORS.length} archetypes across all four tiers, ${Object.keys(INPUTS).length} inputs, ${Object.keys(MARKETS).length} end markets.`
+          : t.desc}</span>
+        <span class="tier__k">${key === "all"
+          ? `<b>${ACTUATORS.length}</b> archetypes`
+          : `<b>${t.shLo === t.shHi ? pct(t.shLo) : pct(t.shLo) + "–" + pct(t.shHi)}</b> of inputs constrained` +
+            `<br><span style="color:var(--ink-3)">${t.lo === t.hi ? t.lo : t.lo + "–" + t.hi} of ${t.inLo === t.inHi ? t.inLo : t.inLo + "–" + t.inHi} inputs</span>`}</span>
+      </span>`;
+    b.addEventListener("click", () => setFilter(key));
+    return b;
+  };
+  wrap.appendChild(mk("all", null));
+  Object.entries(TIERS).forEach(([k, t]) => wrap.appendChild(mk(k, t)));
+}
+
+function setFilter(k){
+  filter = k;
+  document.querySelectorAll(".tier").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.t === filter)));
+  const acts = visibleActs();
+  if (sel.type === "act" && !acts.some(a => a.id === sel.id)) sel = {type:"act", id:acts[0].id};
+  if (sel.type === "inp" && !visibleInputs().includes(sel.id)) sel = {type:"act", id:acts[0].id};
+  if (sel.type === "mkt" && !visibleMarkets().includes(sel.id)) sel = {type:"act", id:acts[0].id};
+  render();
+}
+
+/* ============================================================ MAP */
+function nodeInput(k){
+  const i = INPUTS[k], s = SEV[i.sev];
+  const b = document.createElement("button");
+  b.type = "button"; b.className = `node node--inp ${s.k}`;
+  b.dataset.kind = "inp"; b.dataset.id = k;
+  b.innerHTML = `<span class="node__name">${i.name}</span>` +
+    (i.sub ? `<span class="node__sub">${i.sub}</span>` : "") +
+    `<span class="node__meta">${i.sev}</span>`;
+  b.addEventListener("click", () => { sel = {type:"inp", id:k}; render(); });
+  return b;
+}
+function nodeAct(a){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "node node--act";
+  b.dataset.kind = "act"; b.dataset.id = a.id;
+  b.innerHTML = `<span class="node__t ${TIERS[a.tier].cls}">${TIERS[a.tier].label}</span>` +
+    `<span class="node__name">${a.name}</span>` +
+    (a.sub ? `<span class="node__sub">${a.sub}</span>` : "") +
+    `<span class="node__stat">${a.nIn} inputs · <b>${a.nCon} constrained (${pct(a.share)})</b></span>`;
+  b.addEventListener("click", () => { sel = {type:"act", id:a.id}; render(); });
+  return b;
+}
+function nodeMkt(k){
+  const m = MARKETS[k];
+  const g = v => v === "open" ? "g-open" : v === "part" ? "g-part" : "g-shut";
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "node node--mkt";
+  b.dataset.kind = "mkt"; b.dataset.id = k;
+  b.innerHTML = `<span class="node__name">${m.name}</span>` +
+    `<span class="gates"><span class="gate ${g(m.q)}">QUAL</span><span class="gate ${g(m.c)}">COMP</span><span class="gate ${g(m.s)}">SPEC</span></span>`;
+  b.addEventListener("click", () => { sel = {type:"mkt", id:k}; render(); });
+  return b;
+}
+
+function buildMap(){
+  colInp.innerHTML = ""; colAct.innerHTML = ""; colMkt.innerHTML = "";
+  const vis = visibleInputs();
+  GROUPS.forEach(([label, g]) => {
+    const ks = vis.filter(k => INPUTS[k].g === g);
+    if (!ks.length) return;
+    const h = document.createElement("div"); h.className = "grp"; h.textContent = label;
+    colInp.appendChild(h);
+    ks.forEach(k => colInp.appendChild(nodeInput(k)));
+  });
+  visibleActs().forEach(a => colAct.appendChild(nodeAct(a)));
+  visibleMarkets().forEach(k => colMkt.appendChild(nodeMkt(k)));
+}
+
+/* active edge set for the current selection */
+function activeEdges(){
+  const E = [];
+  if (sel.type === "act"){
+    const a = ACTUATORS.find(x => x.id === sel.id);
+    a.inputs.forEach(i => E.push(["inp", i, "act", a.id]));
+    a.markets.forEach(m => E.push(["act", a.id, "mkt", m]));
+  } else if (sel.type === "inp"){
+    visibleActs().filter(a => a.inputs.includes(sel.id))
+      .forEach(a => E.push(["inp", sel.id, "act", a.id]));
+  } else {
+    visibleActs().filter(a => a.markets.includes(sel.id))
+      .forEach(a => E.push(["act", a.id, "mkt", sel.id]));
+  }
+  return E;
+}
+
+function paintNodes(edges){
+  const live = new Set();
+  edges.forEach(([ka, ia, kb, ib]) => { live.add(ka + ":" + ia); live.add(kb + ":" + ib); });
+  live.add(sel.type + ":" + sel.id);
+  map.querySelectorAll(".node").forEach(n => {
+    const key = n.dataset.kind + ":" + n.dataset.id;
+    n.classList.toggle("node--dim", !live.has(key));
+    n.classList.toggle("node--on", key === sel.type + ":" + sel.id);
+  });
+}
+
+function drawLinks(edges){
+  const mr = map.getBoundingClientRect();
+  svg.setAttribute("viewBox", `0 0 ${mr.width} ${mr.height}`);
+  svg.setAttribute("width", mr.width); svg.setAttribute("height", mr.height);
+  const find = (k, id) => map.querySelector(`.node[data-kind="${k}"][data-id="${id}"]`);
+  const pts = n => { const r = n.getBoundingClientRect();
+    return {l:r.left - mr.left, r:r.right - mr.left, y:r.top - mr.top + r.height / 2}; };
+  let d = "";
+  edges.forEach(([ka, ia, kb, ib]) => {
+    const A = find(ka, ia), B = find(kb, ib);
+    if (!A || !B) return;
+    const a = pts(A), b = pts(B);
+    const x1 = a.r, x2 = b.l, dx = Math.max(18, (x2 - x1) * 0.45);
+    d += `M${x1},${a.y}C${x1 + dx},${a.y} ${x2 - dx},${b.y} ${x2},${b.y}`;
+  });
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="var(--link-hi)" stroke-width="1.1" stroke-opacity=".55"/>`;
+}
+
+function render(){
+  buildMap();
+  const edges = activeEdges();
+  paintNodes(edges);
+  requestAnimationFrame(() => drawLinks(edges));
+  renderDetail();
+  renderNote();
+}
+
+function renderNote(){
+  if (filter === "all"){
+    mapnote.innerHTML = `<b>Read across.</b> The commodity tier draws on few inputs and at most one constrained input.
+      Each high-precision archetype draws on four to six at the same time: rare-earth separation, the
+      heat-stable magnet, the reducer, the robotics-grade bearing, the absolute encoder and
+      gear-grinding capacity. Read the share rather than the count, because the count moves with how
+      finely we split the input list and the share does not.`;
+  } else {
+    const t = TIERS[filter];
+    mapnote.innerHTML = `<b>${t.name}.</b> Basis of competition: ${t.basis.toLowerCase()}.
+      ${t.count} archetype${t.count > 1 ? "s" : ""} in this tier, drawing on
+      ${t.inLo === t.inHi ? t.inLo : t.inLo + "–" + t.inHi} inputs each, of which
+      ${t.lo === t.hi ? t.lo : t.lo + "–" + t.hi} sit at a moderate-to-high, high or critical chokepoint.`;
+  }
+}
+
+/* ============================================================ DETAIL */
+function tagList(ids){
+  return `<div class="taglist">${ids.map(i => {
+    const s = SEV[INPUTS[i].sev];
+    const k = s.n === 4 ? "k4" : s.n === 3 ? "k3" : s.n === 25 ? "k25" : "";
+    return `<span class="tag ${k}">${INPUTS[i].name}</span>`;
+  }).join("")}</div>`;
+}
+
+function renderDetail(){
+  if (sel.type === "act"){
+    const a = ACTUATORS.find(x => x.id === sel.id), t = TIERS[a.tier];
+    const con = a.inputs.filter(i => CONSTRAINED.has(INPUTS[i].sev));
+    const free = a.inputs.filter(i => !CONSTRAINED.has(INPUTS[i].sev));
+    detail.innerHTML = `
+      <div class="detail__top">
+        <div class="detail__kind">Actuator archetype</div>
+        <h3 class="detail__name">${a.name}</h3>
+        <div class="chips"><span class="chip ${t.cls}">${t.label}</span>
+          <span class="chip chip--out">${a.nCon} of ${a.nIn} inputs constrained · ${pct(a.share)}</span></div>
+        ${a.sub ? `<p class="detail__types">${a.sub}</p>` : ""}
+      </div>
+      <div class="detail__body">
+        <div class="field"><div class="field__k">What buyers specify</div><div class="field__v">${a.params}</div></div>
+        <div class="field"><div class="field__k">Basis of competition</div><div class="field__v">${t.desc}</div></div>
+        <div class="field"><div class="field__k">Constrained inputs (${con.length})</div>
+          <div class="field__v">${con.length ? tagList(con) : "None. Every input for this archetype is broadly available."}</div></div>
+        <div class="field"><div class="field__k">Unconstrained inputs (${free.length})</div>
+          <div class="field__v">${tagList(free)}</div></div>
+        <div class="field"><div class="field__k">Supplies</div>
+          <div class="field__v">${a.markets.map(m => MARKETS[m].name).join(" · ")}</div></div>
+        <div class="field field--hav"><div class="field__k">What this means for Havells</div>
+          <div class="field__v">${a.hav}</div></div>
+      </div>
+      <div class="src"><b>Sources</b><br>${a.src}</div>`;
+  } else if (sel.type === "inp"){
+    const i = INPUTS[sel.id], s = SEV[i.sev];
+    const users = ACTUATORS.filter(a => a.inputs.includes(sel.id));
+    const tiersHit = [...new Set(users.map(a => a.tier))];
+    detail.innerHTML = `
+      <div class="detail__top">
+        <div class="detail__kind">Input · ${GROUPS.find(g => g[1] === i.g)[0]}</div>
+        <h3 class="detail__name">${i.name}</h3>
+        <div class="chips">
+          <span class="chip" style="background:var(--sev-${s.n}); color:${DARK_SWATCH.has(s.n) ? "#fff" : "var(--ink)"}">${i.sev} chokepoint</span>
+          <span class="chip chip--out">gates ${users.length} archetype${users.length > 1 ? "s" : ""}</span>
+          <span class="chip chip--out">${i.prov === "source" ? "rating: source chokepoint table" : "rating: analyst judgement"}</span>
+        </div>
+        ${i.sub ? `<p class="detail__types">${i.sub}</p>` : ""}
+      </div>
+      <div class="detail__body">
+        <div class="field"><div class="field__k">Who leads globally</div><div class="field__v">${i.leads}</div></div>
+        <div class="field"><div class="field__k">US position</div><div class="field__v">${i.us}</div></div>
+        <div class="field"><div class="field__k">India position</div><div class="field__v">${i.india}</div></div>
+        <div class="field"><div class="field__k">Why it matters</div><div class="field__v">${i.why}</div></div>
+        <div class="field"><div class="field__k">Tiers it gates</div>
+          <div class="field__v"><div class="taglist">${tiersHit.map(t =>
+            `<span class="tag">${TIERS[t].name}</span>`).join("")}</div></div></div>
+      </div>
+      <div class="src"><b>Sources</b><br>${i.src}</div>`;
+  } else {
+    const m = MARKETS[sel.id];
+    const serve = ACTUATORS.filter(a => a.markets.includes(sel.id));
+    const g = v => v === "open" ? "Open" : v === "part" ? "Partial" : "Closed";
+    detail.innerHTML = `
+      <div class="detail__top">
+        <div class="detail__kind">End market</div>
+        <h3 class="detail__name">${m.name}</h3>
+        <div class="chips">
+          <span class="chip chip--out">Qualification ${g(m.q)}</span>
+          <span class="chip chip--out">Components ${g(m.c)}</span>
+          <span class="chip chip--out">Specification ${g(m.s)}</span>
+        </div>
+      </div>
+      <div class="detail__body">
+        <div class="field"><div class="field__k">Actuator content</div><div class="field__v">${m.content}</div></div>
+        <div class="field"><div class="field__k">Qualification gate</div><div class="field__v">${m.qual}</div></div>
+        <div class="field"><div class="field__k">Design authority</div><div class="field__v">${m.auth}</div></div>
+        <div class="field"><div class="field__k">Where the gap is</div><div class="field__v">${m.gap}</div></div>
+        <div class="field"><div class="field__k">Served by</div>
+          <div class="field__v"><div class="taglist">${serve.map(a =>
+            `<span class="tag">${a.name}</span>`).join("")}</div></div></div>
+        <div class="field field--hav"><div class="field__k">How Havells could address it</div>
+          <div class="field__v">${m.hav}</div></div>
+      </div>
+      <div class="src"><b>Sources</b><br>${m.src}</div>`;
+  }
+}
+
+/* ============================================================ LEGEND */
+el("key").innerHTML =
+  ["CRITICAL","HIGH","MOD–HIGH","MODERATE","LOW–MOD","LOW"].map(k =>
+    `<span class="key__i"><span class="key__sw" style="background:var(--sev-${SEV[k].n})"></span>${k}</span>`).join("") +
+  `<span class="key__i" style="color:var(--ink-3)">— input supply constraint · market gates:
+    <b style="color:var(--ink-2)">QUAL</b> certification ·
+    <b style="color:var(--ink-2)">COMP</b> needs constrained inputs ·
+    <b style="color:var(--ink-2)">SPEC</b> already locked</span>`;
+
+document.getElementById("statInputs").textContent = Object.keys(INPUTS).length;
+// Section numbers are computed, so inserting a <section class="sec"> renumbers the rest.
+document.querySelectorAll(".sec__n[data-autonum]").forEach((el, i) => {
+  el.textContent = String(i + 1).padStart(2, "0");
+});
+buildTiers(); render();
+let rt; addEventListener("resize", () => { clearTimeout(rt);
+  rt = setTimeout(() => drawLinks(activeEdges()), 120); });
+</script>
+</body>
+</html>
