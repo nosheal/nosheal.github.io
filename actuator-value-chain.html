@@ -647,7 +647,7 @@ const INPUTS = {
  rare_earth:{g:"mat", name:"Rare-earth separation", sev:"CRITICAL", prov:"source",
    leads:"BIS gives China over 85% of global rare-earth processing capacity and nearly 60% of mined production. Separation is the processing step. Figures near 90% circulate widely for separation specifically, but we could not attribute them to a primary source.",
    us:"The US position is very thin. MP Materials separates at Mountain Pass, CA, and started commercial NdPr metal production at Fort Worth, TX in January 2025. MP gives a target of approximately 1,000 t/yr for finished NdFeB magnets at Fort Worth. It publishes no separate NdPr metal capacity figure.",
-   india:"IREL (India) Limited has 400 t/yr of NdPr oxide capacity. We derive from this that IREL can support roughly 1,200 t/yr of integrated NdFeB magnet production. Note that the Ministry of Heavy Industries scheme allocates 6,000 t/yr, so IREL covers approximately one fifth of it. The remainder needs imported feedstock.",
+   india:"IREL (India) Limited has 400 t/yr of NdPr oxide capacity. We derive from this that IREL can support roughly 1,200 t/yr of integrated NdFeB magnet production. The Ministry of Heavy Industries scheme allocates 6,000 t/yr, so IREL covers approximately one fifth of it. The remainder needs imported feedstock.",
    why:"Separation needs heavy chemical processing, many permits and much capital. Environmental lead times are long. Separation gives an oxide. Two more steps follow: oxide to metal, then metal to strip-cast alloy. Only then can a producer make a magnet.",
    src:"BIS Section 232, 21 Sep 2022 (measured, for the 85% and 60% figures only) · MP Materials disclosures (company claim) · India Ministry of Heavy Industries / IREL scheme documents"},
 
@@ -661,14 +661,14 @@ const INPUTS = {
  magnet_std:{g:"mat", name:"Standard NdFeB or ferrite magnet", sev:"LOW–MOD", prov:"analyst",
    leads:"China supplies most of the volume. But China does not restrict light-rare-earth-only grades, or bonded NdFeB that contains no heavy rare earths. Ferrite has no constraint.",
    us:"Available. Ferrite is not a chokepoint.", india:"Available through import; the MHI scheme would add domestic sintered capacity.",
-   why:"This magnet is adequate for the commodity tier and for many industrial-tier applications, where torque density and thermal envelope do not bind. Havells does not disclose its magnet grades, so we cannot say which grades its current product uses. <strong>Read this rating as a live question, not a settled fact.</strong> High-duty industrial servos and high torque-to-weight gimbal motors often specify UH or SH grades, which contain dysprosium. Where they do, that archetype moves onto the constrained magnet and the industrial tier stops looking unconstrained. This is the single assumption most likely to change the sequencing recommendation, and Phase I should settle it against real Havells specifications.",
+   why:"This magnet is adequate for the commodity tier and for many industrial-tier applications, where torque density and thermal envelope do not bind. Havells does not disclose its magnet grades, so we cannot say which grades its current product uses. <strong>This rating is a live question rather than a settled fact.</strong> High-duty industrial servos and high torque-to-weight gimbal motors often specify UH or SH grades, which contain dysprosium. Where they do, that archetype moves onto the constrained magnet and the industrial tier stops looking unconstrained. This is the single assumption most likely to change the sequencing recommendation, and Phase I should settle it against real Havells specifications.",
    src:"MOFCOM Announcement No. 18 scope (policy, dated) · Newlab analysis"},
 
  esteel:{g:"mat", name:"Thin-gauge electrical steel", sub:"non-grain-oriented, CoFe", sev:"MODERATE", prov:"source",
    leads:"Japan and the EU, plus one genuine US niche.",
    us:"Arnold Magnetic Technologies makes Arnon 4/5/7 at 0.004–0.007 inch in the US. Arnold states core loss as much as 50% lower than standard NGO. Bulk NGO capacity for the power sector is tight, and Cleveland-Cliffs holds most of it. That tightness is not the same as the thin gauge an actuator needs, which Arnold makes domestically. We rate this moderate for that reason. Rate it one level higher and the commodity and industrial tiers stop reading as unconstrained, so this rating carries much of the tier contrast.",
    india:"Not established in this research.",
-   why:"Gauge controls core loss, and core loss controls torque density and thermal envelope. The binding constraint is the ability to roll to gauge at width and flatness, not steel availability. India has a documented structural gap in electrical steel. That gap is in the grain-oriented grade used for transformers, not the non-grain-oriented gauge a motor needs. GTRI put the grain-oriented shortfall near 30% of demand, with no domestic capacity before 2027. Treat that as a signal about supply position, not as a motor-grade finding.",
+   why:"Gauge controls core loss, and core loss controls torque density and thermal envelope. The binding constraint is the ability to roll to gauge at width and flatness, not steel availability. India has a documented structural gap in electrical steel. That gap is in the grain-oriented grade used for transformers, not the non-grain-oriented gauge a motor needs. GTRI put the grain-oriented shortfall near 30% of demand, with no domestic capacity before 2027. That is a signal about India's electrical-steel supply position, not a motor-grade finding.",
    src:"Arnold product data (company claim) · US power-sector trade group filings"},
 
  copper:{g:"mat", name:"Copper wire, housings, structural materials", sev:"LOW", prov:"analyst",
@@ -768,7 +768,7 @@ const INPUTS = {
  airbearing:{g:"mech", name:"Air bearings", sev:"MOD–HIGH", prov:"analyst",
    leads:"Specialist suppliers concentrated in the US, Germany and Japan.",
    us:"Present in the semiconductor equipment supply base.", india:"Not established in this research.",
-   why:"Nanometre-class positioning needs air bearings, because rolling contact adds too much error. The supply base is narrow and application-specific. Note that this severity rating is our judgement from the narrow supplier base; the source report makes no chokepoint assessment for air bearings.",
+   why:"Nanometre-class positioning needs air bearings, because rolling contact adds too much error. The supply base is narrow and application-specific. This severity rating is our judgement from the narrow supplier base. The source report makes no chokepoint assessment for air bearings.",
    src:"Newlab actuator value-chain research"},
 
  enc_abs:{g:"sense", name:"High-resolution absolute encoder", sev:"MOD–HIGH", prov:"source",
@@ -871,7 +871,7 @@ const ACTUATORS = [
   params:"Efficiency class (IE2 / IE3), frame size, rated torque, insulation class, duty type. No position feedback.",
   inputs:["esteel","copper","winding","balancing","bearing_std","eoltest"],
   markets:["facauto","energy","constr","bldg"],
-  hav:"<strong>This is what Neemrana actually builds.</strong> Three-phase LV induction motors, IEC frames 63-355, 0.37-350 kW, more than 20,000 units a month. Note what this archetype does not contain: no permanent magnet, no encoder, no closed-loop drive and no magnetizer. That absence is the true distance between the current product and an actuator, and it is larger than a motor-versus-motor comparison suggests.",
+  hav:"<strong>This is what Neemrana actually builds.</strong> Three-phase LV induction motors, IEC frames 63-355, 0.37-350 kW, more than 20,000 units a month. This archetype contains no permanent magnet, no encoder, no closed-loop drive and no magnetizer. That absence is the true distance between the current product and an actuator, and it is larger than a motor-versus-motor comparison suggests.",
   src:"Havells Motors catalogue (company claim, primary)"},
 
  {id:"a1", tier:"t1", name:"Fractional geared motor", sub:"brushed or BLDC, gearbox integrated",
@@ -884,7 +884,7 @@ const ACTUATORS = [
   params:"Stroke, force, duty cycle, response time. Open-loop.",
   inputs:["copper","winding","ballscrew","driverIC","bearing_std","eoltest"],
   markets:["bldg","auto","energy"],
-  hav:"The existing plant can make this archetype. No input is constrained. Margins in this tier are thin, which is consistent with that, although our input count does not by itself establish the margin. Note that a plain solenoid needs no permanent magnet and no laminated core. The lead screw here belongs to the simple linear actuator, not to the solenoid.", src:"Newlab archetype construction"},
+  hav:"The existing plant can make this archetype. No input is constrained. Margins in this tier are thin, which is consistent with that, although our input count does not by itself establish the margin. A plain solenoid needs no permanent magnet and no laminated core. The lead screw here belongs to the simple linear actuator, not to the solenoid.", src:"Newlab archetype construction"},
 
  {id:"a3", tier:"t1", name:"Pneumatic cylinder and gripper",
   params:"Bore, stroke, cycle rate, air consumption. No position feedback.",
@@ -967,7 +967,7 @@ const ACTUATORS = [
 
 const MARKETS = {
  amr:{name:"Autonomous mobile robots, AGVs, warehouse", q:"open", c:"open", s:"open",
-   content:"Moderate — several drive and lift actuators per vehicle. Commercial estimates put the global autonomous mobile robot market near US$4.5–5.2bn in 2025-26, and growing at roughly 14% a year. Estimates vary widely between firms, because each draws the AMR and AGV boundary differently. Treat the level as indicative and the growth direction as the reliable part.",
+   content:"Moderate — several drive and lift actuators per vehicle. Commercial estimates put the global autonomous mobile robot market near US$4.5–5.2bn in 2025-26, and growing at roughly 14% a year. Estimates vary widely between firms, because each draws the AMR and AGV boundary differently. The level is indicative; the growth direction is the reliable part.",
    qual:"Commercial. No certification regime stands between a competent manufacturer and a purchase order.",
    auth:"Semi-commodity. The integrator specifies performance, not a part number.",
    gap:"This is the only robotics market where all three gates are open. It needs precision planetary gearing and closed-loop servo control. Both are much easier than the strain-wave and heat-stable-magnet problems that gate humanoid robots.",
@@ -1010,7 +1010,7 @@ const MARKETS = {
    qual:"Emerging. No entrenched certification regime yet, which is the opportunity.",
    auth:"OEM design authority, currently in-housed because no supplier can serve it.",
    gap:"This market has no dominant design and no standard “engine” supplier. OEMs therefore integrate vertically because they must, not because they prefer to. Two of the three gates are open. The input gate is fully shut: strain-wave reducers, heat-stable magnets, robotics-grade bearings and absolute encoders all constrain it at the same time.",
-   hav:"This market is the prize. Havells can reach it only after it opens the input gate, which is the purpose of the sequencing argument. Note who is already here. Sanhua and Tuopu assemble actuators for Optimus, and Inovance, Estun and Leaderdrive have moved from components into modules. Unitree cut its humanoid average selling price from ¥593K in 2023 to ¥168K over January to September 2025. Havells would enter against manufacturers who moved earlier and who are cutting price fast.", src:"Source report key findings · Tesla Optimus configuration per Morgan Stanley coverage (industry estimate)"},
+   hav:"This market is the prize. Havells can reach it only after it opens the input gate, which is the purpose of the sequencing argument. Competitors are already established. Sanhua and Tuopu assemble actuators for Optimus, and Inovance, Estun and Leaderdrive have moved from components into modules. Unitree cut its humanoid average selling price from ¥593K in 2023 to ¥168K over January to September 2025. Havells would enter against manufacturers who moved earlier and who are cutting price fast.", src:"Source report key findings · Tesla Optimus configuration per Morgan Stanley coverage (industry estimate)"},
  indrobot:{name:"Industrial robots and cobots", q:"part", c:"shut", s:"shut",
    content:"4–7 joints per arm.",
    qual:"ISO/TS 15066 for collaborative robots.", auth:"OEM-specified and hard to switch.",
