@@ -295,6 +295,14 @@ p{margin:0}
 .gaps li::before{content:"—"; position:absolute; left:0; color:var(--bar-accent)}
 .gaps__f{margin-top:15px; font-size:12.5px; color:var(--bar-fg-2) !important; line-height:1.55}
 
+.untested{border:1px solid var(--rule); border-left:3px solid var(--accent); background:var(--surface);
+          padding:16px 18px; margin-top:18px}
+.untested__t{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;
+             color:var(--accent); font-weight:700}
+.untested__lead{font-size:13px; line-height:1.55; color:var(--ink-2); margin-top:7px; max-width:78ch}
+.untested__grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); margin-top:14px}
+.untested__grid b{display:block; font-size:13px; color:var(--ink); margin-bottom:4px}
+.untested__grid p{font-size:12.5px; line-height:1.5; color:var(--ink-2)}
 .method{margin-top:18px; columns:3 280px; column-gap:30px}
 .method > div{break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:17px}
 .method h3{font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase;
@@ -402,25 +410,70 @@ details.sec > summary:hover .sec__toggle{color:var(--ink)}
       <aside class="detail" id="detail" aria-live="polite"></aside>
     </div>
 
+  </section>
+
+  <section class="sec">
+    <div class="sec__head">
+      <span class="sec__n" data-autonum></span>
+      <h2 class="sec__t">The entry hypothesis</h2>
+    </div>
+    <p class="sec__sub">
+      Havells will want to enter humanoid actuation directly, because that tier holds the growth
+      narrative. We argue for a different order. Below we separate what we measured from what we
+      only think is true.
+    </p>
+
+    <p class="sec__sub" style="margin-top:18px">
+      Start with the market structure. In most end markets few suppliers compete, and severe entry
+      requirements are the reason. Aerospace, defence, medical and semiconductor equipment are all
+      like this, and certification is what keeps the field small.
+    </p>
+    <p class="sec__sub" style="margin-top:10px">
+      Two markets break that pattern. Humanoid robots and uncrewed systems have few suppliers
+      <em>and</em> no certification barrier. Humanoid robotics has no dominant design, so OEMs build
+      in-house because they must. In uncrewed systems no qualified non-Chinese supplier has taken
+      the volume.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat__n">20 of 32</span>
+        <span class="stat__l">Inputs Havells would hold after building the commodity and industrial tiers</span>
+        <span class="stat__s">Derived from the map above</span>
+      </div>
+      <div class="stat">
+        <span class="stat__n">58–88%</span>
+        <span class="stat__l">Of a high-precision market's parts list already covered by those inputs</span>
+        <span class="stat__s">Looks like strong capability transfer</span>
+      </div>
+      <div class="stat">
+        <span class="stat__n">0–17%</span>
+        <span class="stat__l">Of that market's <em>constrained</em> inputs covered. Gear grinding is the only one that transfers</span>
+        <span class="stat__s">The transfer is almost entirely in the unconstrained half</span>
+      </div>
+    </div>
+
     <div class="gaps">
-      <div class="gaps__t">What the tiers imply for sequencing</div>
-      <p>
-        Havells will want to enter humanoid actuation directly, because that tier holds the growth
-        narrative. But four to six constrained inputs gate each high-precision archetype at the same time.
-        The industrial tier needs much of the same capability, and it needs it <em>now</em>, against at most one
-        constrained input.
-      </p>
-      <p>
-        Be precise about which part of that capability transfers. Most of the shared stack is the unconstrained
-        half, and it earns nothing. <strong>Gear-grinding capacity is the one constrained input that
-        transfers.</strong> It is the single constrained input in seven of the fourteen end markets.
-      </p>
+      <div class="gaps__t">The hypothesis — three moves</div>
       <ul>
-        <li><b>Build gear-grinding capacity first.</b> It is the only constrained input in seven end markets, and one of several in four more. One capability reaches eleven of the fourteen.</li>
-        <li><b>Take uncrewed systems in parallel, not after.</b> It shares no constrained input with the industrial tier, so nothing is gained by sequencing it later. Its constraint is magnets, and India's defence-drone rules already favour a non-Chinese supplier.</li>
-        <li><b>Then enter the high-precision tier</b> with the reducer and magnet questions answered, rather than with the motor half and a list of parts to find.</li>
+        <li><b>Build gear-grinding capacity first.</b> It is the only constrained input in seven end markets and one of several in four more. One capability reaches eleven of the fourteen.</li>
+        <li><b>Take uncrewed systems in parallel, not after.</b> It shares no constrained input with the industrial tier, so delaying it buys nothing. Its constraint is magnets, and India's defence-drone rules already favour a non-Chinese supplier.</li>
+        <li><b>Enter high-precision last</b>, with the reducer and magnet questions answered, rather than with the motor half and a list of parts to find.</li>
       </ul>
-      <p class="gaps__f">This is a sequencing view, not a market-size ranking. We infer it from the input structure, and it is not a measured finding. Note what it does not claim. The high-precision tier has no certification barrier, so this is not a ladder Havells must climb to earn credibility.</p><p class="gaps__f">It is a cash-flow argument first. We tested the capability-spillover argument and it is weaker than it sounds. Build the commodity and industrial tiers and you hold 20 of the 32 inputs. That covers 58% to 88% of a hard market's parts list, but almost all of that coverage is the unconstrained half.</p><p class="gaps__f">On the constrained inputs the spillover nearly disappears. You would hold one of six for humanoid robots and one of seven for industrial robots. You would hold one of three for aerospace and defence, and none at all for uncrewed systems, medical or semiconductor. In every case the single input that transfers is gear grinding. Magnets, strain-wave reducers, crossed-roller bearings and absolute encoders each have to be solved on their own terms. Starting lower down the stack does nothing to advance them.</p><p class="gaps__f">Gear grinding is therefore the whole of the transferable capability, and it is worth building for that reason alone. Whether it is a two-year or a ten-year problem for Havells depends on its existing gear-cutting assets, which Phase I must establish.</p><p class="gaps__f"><b style="color:var(--bar-accent)">Worth testing, not established here.</b> Three arguments for building the lower tiers first remain open, and this map cannot settle any of them. Phase I should test each against Havells' own plant.</p><p class="gaps__f">Process discipline may carry, because metrology, heat treatment and statistical process control are shared even though the flexspline is a distinct process. Failure cost is far lower: a defective industrial gearbox is a warranty claim, and a defective robot joint is a lost design win. Capital can also be staged. Industrial gear capacity is bought incrementally, while a precision-reducer plant is one commitment above US$50M.</p>
+      <p class="gaps__f">Note what this does not claim. The high-precision tier has no certification barrier, so this is not a ladder Havells must climb to earn credibility. It is an argument about cash flow and about one shared constraint. Whether gear grinding is a two-year or a ten-year problem for Havells depends on its existing gear-cutting assets, which Phase I must establish.</p>
+    </div>
+
+    <div class="untested">
+      <div class="untested__t">Worth testing · not established by this map</div>
+      <p class="untested__lead">
+        Three further arguments favour building the lower tiers first. We cannot settle any of them
+        from a value-chain map, and Phase I should test each against Havells' own plant.
+      </p>
+      <div class="untested__grid">
+        <div><b>Process discipline may carry.</b><p>Metrology, heat treatment and statistical process control are shared across tolerance classes, even though the flexspline itself is a distinct process.</p></div>
+        <div><b>Failure cost is far lower.</b><p>A defective industrial gearbox is a warranty claim. A defective robot joint is a lost design win at an OEM that took months to qualify.</p></div>
+        <div><b>Capital can be staged.</b><p>Industrial gear capacity is bought machine by machine. A precision-reducer plant is a single commitment above US$50M.</p></div>
+      </div>
     </div>
   </section>
 
@@ -1097,7 +1150,7 @@ function nodeMkt(k){
   b.type = "button"; b.className = "node node--mkt";
   b.dataset.kind = "mkt"; b.dataset.id = k;
   b.innerHTML = `<span class="node__name">${m.name}</span>` +
-    `<span class="gates"><span class="gate ${g(m.q)}">QUAL</span><span class="gate ${g(m.c)}">COMP</span><span class="gate ${g(m.s)}">SPEC</span></span>`;
+    `<span class="gates"><span class="gate ${g(m.q)}">CERT</span><span class="gate ${g(m.c)}">INPUT</span><span class="gate ${g(m.s)}">SPEC</span></span>`;
   b.addEventListener("click", () => { sel = {type:"mkt", id:k}; render(); });
   return b;
 }
@@ -1177,8 +1230,8 @@ function renderNote(){
       Each high-precision archetype draws on four to six at the same time: rare-earth separation, the
       heat-stable magnet, the reducer, the robotics-grade bearing, the absolute encoder and
       gear-grinding capacity. Read the share rather than the count, because the count moves with how finely we split the
-      input list and the share does not. Note which single input recurs. Gear-grinding capacity appears in eleven of the fourteen
-      end markets. In seven it is the only constrained input, and in four more it is one of several.`;
+      input list and the share does not. Note which single input recurs. Gear-grinding capacity appears in eleven of the fourteen end
+      markets. In seven it is the only constrained input.`;
   } else {
     const t = TIERS[filter];
     mapnote.innerHTML = `<b>${t.name}.</b> Basis of competition: ${t.basis.toLowerCase()}.
@@ -1257,15 +1310,15 @@ function renderDetail(){
         <div class="detail__kind">End market</div>
         <h3 class="detail__name">${m.name}</h3>
         <div class="chips">
-          <span class="chip chip--out">Qualification ${g(m.q)}</span>
-          <span class="chip chip--out">Components ${g(m.c)}</span>
+          <span class="chip chip--out">Certification ${g(m.q)}</span>
+          <span class="chip chip--out">Input supply ${g(m.c)}</span>
           <span class="chip chip--out">Specification ${g(m.s)}</span>
         </div>
       </div>
       <div class="detail__body">
         <div class="field"><div class="field__k">Actuator content</div><div class="field__v">${m.content}</div></div>
-        <div class="field"><div class="field__k">Qualification gate</div><div class="field__v">${m.qual}</div></div>
-        <div class="field"><div class="field__k">Design authority</div><div class="field__v">${m.auth}</div></div>
+        <div class="field"><div class="field__k">Certification requirement</div><div class="field__v">${m.qual}</div></div>
+        <div class="field"><div class="field__k">Specification and design authority</div><div class="field__v">${m.auth}</div></div>
         <div class="field"><div class="field__k">Where the gap is</div><div class="field__v">${m.gap}</div></div>
         <div class="field"><div class="field__k">Served by</div>
           <div class="field__v"><div class="taglist">${serve.map(a =>
@@ -1281,10 +1334,10 @@ function renderDetail(){
 el("key").innerHTML =
   ["CRITICAL","HIGH","MOD–HIGH","MODERATE","LOW–MOD","LOW"].map(k =>
     `<span class="key__i"><span class="key__sw" style="background:var(--sev-${SEV[k].n})"></span>${k}</span>`).join("") +
-  `<span class="key__i" style="color:var(--ink-3)">— input supply constraint · market gates:
-    <b style="color:var(--ink-2)">QUAL</b> certification ·
-    <b style="color:var(--ink-2)">COMP</b> needs constrained inputs ·
-    <b style="color:var(--ink-2)">SPEC</b> already locked</span>`;
+  `<span class="key__i" style="color:var(--ink-3)">— input supply constraint · per market:
+    <b style="color:var(--ink-2)">CERT</b> certification a supplier must hold ·
+    <b style="color:var(--ink-2)">INPUT</b> needs constrained inputs ·
+    <b style="color:var(--ink-2)">SPEC</b> specification already set by an incumbent</span>`;
 
 document.getElementById("statInputs").textContent = Object.keys(INPUTS).length;
 // Section numbers are computed, so inserting a <section class="sec"> renumbers the rest.
